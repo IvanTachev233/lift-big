@@ -58,6 +58,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -176,13 +177,11 @@ GRAPHENE = {
 # https://github.com/adamchainz/django-cors-headers
 
 # List of origins that are authorized to make cross-site HTTP requests.
-# CORS_ALLOWED_ORIGINS = [
-#     'http://localhost:5173',  # Default for Vite React dev server
-#     'http://127.0.0.1:5173', # Include 127.0.0.1 as well
-#     # Add the URL of your deployed frontend site here in production
-#     # e.g., 'https://your-deployed-app-domain.com'
-# ]
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+]
 
-CORS_ALLOW_CREDENTIALS = True
+# CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = True
