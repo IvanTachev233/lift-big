@@ -24,31 +24,33 @@ const LoginPage = () => {
     };
 
     return (
-        <div>
+        <div className="page-container"> {/* Apply container style */}
             <h2>Login</h2>
-            {error && <p style={{color: 'red'}}>{error}</p>}
-            <form onSubmit={handleSubmit}>
-                <div>
+            <form onSubmit={handleSubmit} className='form-container'>
+                {error && <p className="error-message">{error}</p>}
+                <div className="form-group">
                     <label htmlFor='username'>Username:</label>
                     <input 
                         type='text'
                         id='username'
+                        className="form-input"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         required    
                     />
                 </div>
-                <div>
+                <div className="form-group">
                     <label htmlFor='password'>Password:</label>
                     <input 
                         type='text'
                         id='password'
+                        className="form-input"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required    
                     />
                 </div>
-                <button type='submit' disabled={loading}>
+                <button type='submit' className="btn btn-primary"  disabled={loading}>
                     {loading ? 'Logging in' : 'Login'}
                 </button>
             </form>

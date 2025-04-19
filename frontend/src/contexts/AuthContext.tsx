@@ -24,6 +24,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [accessToken, setAccessToken] = useState<string | null>(localStorage.getItem('accessToken'));
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
+    const [authLoading, setAuthLoading] = useState<boolean>(true);
 
     useEffect(() => {
         if (accessToken) {
