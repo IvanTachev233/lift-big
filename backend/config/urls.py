@@ -23,11 +23,9 @@ from rest_framework_simplejwt.views import ( # Import JWT views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
+    path('api/', include('core.urls')), # Include URLs from the core app under '/api/' prefix
     # JWT Authentication Endpoints
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
-    # Your App's API Endpoints (from core/urls.py)
-    path('api/', include('core.urls')), # Include URLs from the core app under '/api/' prefix
 ]

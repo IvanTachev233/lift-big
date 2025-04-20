@@ -36,7 +36,7 @@ const Navbar: React.FC = () => {
                         <li><NavLink to="/log-workout" className={getNavLinkClass}>Log Workout</NavLink></li>
                         <li>
                             <button onClick={handleLogout} className="navbar-logout-btn">
-                                Logout
+                                Logout {user?.username}
                             </button>
                         </li>
                     </>
