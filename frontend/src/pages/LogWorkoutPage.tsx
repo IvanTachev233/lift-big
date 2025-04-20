@@ -142,10 +142,11 @@ const LogWorkoutPage = () => {
                     <form onSubmit={handleLogSet}>
                         {setError && <p style={{ color: 'red' }}>{setError}</p>}
                         {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
-                        <div>
+                        <div className="form-group">
                             <label htmlFor="exercise">Exercise:</label>
                             <select
                                 id="exercise"
+                                className="form-input"
                                 value={selectedExerciseId}
                                 onChange={(e: ChangeEvent<HTMLSelectElement>) => setSelectedExerciseId(e.target.value)}
                                 required
@@ -158,30 +159,37 @@ const LogWorkoutPage = () => {
                                 ))}
                             </select>
                         </div>
-                        <div>
+                        
+                        {/* Reps Input */}
+                        <div className="form-group">
                             <label htmlFor="reps">Reps:</label>
                             <input
                                 type="number"
                                 id="reps"
+                                className="form-input"
                                 value={repsValue}
                                 onChange={(e: ChangeEvent<HTMLInputElement>) => setRepsValue(e.target.value)}
-                                min="1" // Basic HTML5 validation
+                                min="1"
                                 required
                             />
                         </div>
-                        <div>
+
+                        {/* Weight Input */}
+                        <div className="form-group">
                             <label htmlFor="weight">Weight:</label>
                             <input
                                 type="number"
                                 id="weight"
+                                className="form-input" 
                                 value={weightValue}
                                 onChange={(e: ChangeEvent<HTMLInputElement>) => setWeightValue(e.target.value)}
-                                step="0.01" // Allow decimals
-                                min="0" // Basic HTML5 validation
+                                step="0.01"
+                                min="0"
                                 required
                             />
                         </div>
-                        <button type="submit" disabled={loadingSet}>
+
+                        <button type="submit" className="btn btn-primary" disabled={loadingSet}>
                             {loadingSet ? 'Logging...' : 'Log Set'}
                         </button>
                     </form>

@@ -27,11 +27,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [authLoading, setAuthLoading] = useState<boolean>(true);
 
     useEffect(() => {
+        const fetchUser = async () => {
+            // The apiClient interceptor will automatically add the Bearer token
+            try {
+            
+                const response = await apiClient.get<User>('users/me/');
+                if (response.data) {
+                    setUser(response.data);
+                } else {
+                    // Handle case where endpoint returns OK but no data? Unlikely.
+                    logout();
+                }
+            } catch (error: any) {
+                console.error("AuthContext: Failed to fetch user data:", error.response?.data || error.message);
+                logout(); // Force logout if token is bad
+            } finally {
+                setAuthLoading(false); // Finished initial auth check/user fetch attempt
+            }
+        };
+
         if (accessToken) {
-            console.log("Token found, user might be logged in");
-            // TODO [LB-1]: Fetch user data from '/api/users/me/' and call setUser
-            // apiClient.get<User>('/users/me/').then(res => setUser(res.data)).catch(...)
-        }
+            fetchUser();
+          } else {
+            // No token, ensure user is null and finish loading check
+            setUser(null);
+            setAuthLoading(false);
+          }
     }, [accessToken]);
 
     const login = async (username: string, password: string): Promise<boolean> => {
@@ -51,7 +72,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             localStorage.setItem('accessToken', access);
             localStorage.setItem('refreshToken', refresh);
             setAccessToken(access);
-            // TODO [LB-2]: Fetch user details after login and setUser
+            // TODO [LB-1]: Fetch user details after login and setUser
 
             setLoading(false);
             return true;
@@ -69,7 +90,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         setAccessToken(null);
-        setUser(null);
+        // setUser(null);
         console.log("User logged out");
 
     };
@@ -79,8 +100,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         user,
         login, 
         logout,
-        isAuthenticated: !!accessToken,
-        loading,
+        isAuthenticated: !!accessToken && !!user,
+        loading: loading || authLoading,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

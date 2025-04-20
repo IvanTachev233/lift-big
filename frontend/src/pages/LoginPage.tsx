@@ -42,7 +42,7 @@ const LoginPage = () => {
                 <div className="form-group">
                     <label htmlFor='password'>Password:</label>
                     <input 
-                        type='text'
+                        type='password'
                         id='password'
                         className="form-input"
                         value={password}
