@@ -29,22 +29,44 @@ const DashboardPage = () => {
     if (error) return <div style={{ color: 'red' }}>{error}</div>;
 
     return (
-        <div>
+        <div className="page-container">
             <h2>Dashboard</h2>
-            {user && <p>Welcome, {user.username}</p>}
-            {workouts.length > 0 ? (
-                <ul>
-                    {workouts.map(workout => (
-                        <li key={workout.id}>
-                            {workout.name || `Workout on ${workout.date}`}
-                            {/* Display more workout details here as needed */}
-                        </li>
-                    ))}
-                </ul>
-            ) : (
-                <p>No recent workouts found.</p>
+            {user && <p className="dashboard-welcome">Welcome, {user.username}!</p>}
+
+            {loading && <div className="loading-message">Loading workouts...</div>}
+            {error && <div className="error-message">{error}</div>}
+
+            {!loading && !error && (
+                 workouts.length > 0 ? (
+                    <>
+                        <h3>Recent Workouts</h3>
+                        {/* Use item-list class on ul */}
+                        <ul className="item-list">
+                            {workouts.map(workout => (
+                                // Use item-list-item class on li
+                                <li key={workout.id} className="item-list-item">
+                                    {/* Use item-title and item-details for structure */}
+                                    <span className="item-title">{workout.name || `Workout Session`}</span>
+                                    <span className="item-details">
+                                        <span className="label">Date:</span> {workout.date}
+                                        {workout.sets && ` - ${workout.sets.length} sets`}
+                                    </span>
+                                    {/* You could add a Link here to view workout details */}
+                                </li>
+                            ))}
+                        </ul>
+                    </>
+                 ) : (
+                    // Use empty-list-message class
+                    <p className="empty-list-message">No recent workouts found. Go log one!</p>
+                 )
             )}
-             <button onClick={logout}>Logout</button>
+
+             <div className="logout-button-container">
+                 <button onClick={logout} className="btn btn-primary">
+                     Logout
+                 </button>
+             </div>
         </div>
     );
 };

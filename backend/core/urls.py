@@ -11,7 +11,7 @@ router.register(r'exercises', views.ExerciseViewSet, basename='exercise')
 router.register(r'workouts', views.WorkoutViewSet, basename='workout')
 router.register(r'workoutsets', views.WorkoutSetViewSet, basename='workoutset')
 
-# The API URLs are now determined automatically by the router.
 urlpatterns = [
+    path('users/me/', views.CurrentUserView.as_view(), name='current-user'),
     path('', include(router.urls)),
 ]
