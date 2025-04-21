@@ -72,7 +72,6 @@ class WorkoutSetViewSet(viewsets.ModelViewSet):
         return WorkoutSet.objects.filter(workout__user=self.request.user)
 
     def perform_create(self, serializer):
-        # Add validation here if needed before saving
         workout_id = serializer.validated_data.get('workout').id
         if Workout.objects.get(id=workout_id).user != self.request.user:
             raise serializers.ValidationError("You can only add sets to your own workouts.")

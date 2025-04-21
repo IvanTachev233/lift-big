@@ -54,9 +54,6 @@ const LogWorkoutPage = () => {
         const today = getTodayDateString();
 
         try {
-            // Try to find an existing workout for today
-            // Note: Your backend might need specific query param support like ?date=YYYY-MM-DD
-            // Or you might fetch all and filter, or have a dedicated 'today' endpoint
             const response = await apiClient.get<Workout[]>(`/workouts/?date=${today}`); // Adjust endpoint/params as needed
 
             if (response.data && response.data.length > 0) {
@@ -99,7 +96,7 @@ const LogWorkoutPage = () => {
 
         const setData = {
             workout: currentWorkout.id,
-            exercise: parseInt(selectedExerciseId, 10), // Ensure ID is number
+            exercise_id: parseInt(selectedExerciseId, 10),
             reps: repsNum,
             weight: String(weightValue), // Send as string for DRF DecimalField
         };
@@ -124,12 +121,12 @@ const LogWorkoutPage = () => {
     if (exerciseFetchError) return <div style={{ color: 'red' }}>{exerciseFetchError}</div>;
 
     return (
-        <div>
+        <div className="page-container">
             <h2>Log Workout</h2>
 
             {!currentWorkout && (
                 <div>
-                    <button onClick={handleStartOrFindWorkout} disabled={loadingWorkout}>
+                    <button className="btn btn-primary" onClick={handleStartOrFindWorkout} disabled={loadingWorkout}>
                         {loadingWorkout ? 'Starting...' : "Start/Find Today's Workout"}
                     </button>
                     {workoutError && <p style={{ color: 'red' }}>{workoutError}</p>}

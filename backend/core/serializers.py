@@ -21,7 +21,7 @@ class ExerciseSerializer(serializers.ModelSerializer):
 
 class WorkoutSetSerializer(serializers.ModelSerializer):
     # Display exercise details instead of just ID
-    exercise = ExerciseSerializer(read_only=True) # Uncomment if you want full exercise details here
+    exercise = ExerciseSerializer(read_only=True)
     exercise_id = serializers.PrimaryKeyRelatedField(queryset=Exercise.objects.all(), source='exercise', write_only=True) # Use this for creation/update
 
     class Meta:

@@ -13,11 +13,15 @@
     z-index: 1000;
 }
 
-.navbar-brand-link {
+.navbar-brand a, .navbar-brand-link {
     color: white;
     text-decoration: none;
     font-size: 1.6rem;
     font-weight: bold;
+    transition: color 0.2s ease;
+}
+.navbar-brand a:hover, .navbar-brand-link:hover {
+    color: #cccccc;
 }
 
 .navbar-links {
@@ -34,7 +38,7 @@
 
 /* Style for NavLink component */
 .navbar-link {
-    color: #ecf0f1;
+    color: #a1a1aa;
     text-decoration: none;
     padding: 8px 12px;
     border-radius: 4px;
@@ -43,8 +47,8 @@
 }
 
 .navbar-link:hover {
-    background-color: #34495e;
     color: white;
+    background-color: #3f3f46;
 }
 
 /* Style for the active NavLink */
@@ -57,17 +61,31 @@
 /* Logout Button Styling */
 .navbar-logout-btn {
     background: none;
-    border: 1px solid #e74c3c;
-    color: #e74c3c;
+    border: 1px solid #a1a1aa;
+    color: #a1a1aa;
     padding: 6px 12px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 0.9rem;
     font-weight: bold;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .navbar-logout-btn:hover {
-    background-color: #e74c3c;
+    background-color: #3f3f46;
     color: white;
+    border-color: #52525b;
 }
+
+.navbar-login-link {
+     background-color: #8A9A5B;
+     color: white;
+     padding: 8px 15px;
+     border-radius: 4px;
+     text-decoration: none;
+     font-weight: bold;
+     transition: background-color 0.2s ease;
+ }
+ .navbar-login-link:hover {
+     background-color: #78884a;
+ }
