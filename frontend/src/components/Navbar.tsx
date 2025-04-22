@@ -7,7 +7,6 @@ import './Navbar.css'; // We'll create this CSS file next
 const Navbar: React.FC = () => {
     const { isAuthenticated, logout, user } = useAuth(); // Get user too if needed
     const navigate = useNavigate();
-    console.log(user);
     const handleLogout = () => {
         logout();
         // Navigate to login page after logout to ensure redirect happens

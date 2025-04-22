@@ -224,3 +224,35 @@ select.form-input {
     margin-top: 30px;
     text-align: center;
 }
+
+.btn-secondary {
+  background-color: #f0f0f0; /* Light grey */
+  color: #333;
+  border: 1px solid #ccc;
+}
+.btn-secondary:hover:not(:disabled) {
+  background-color: #e0e0e0;
+  border-color: #bbb;
+  transform: translateY(-1px);
+}
+
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 0.85rem;
+  width: auto;
+}
+
+.item-list-item-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.item-content {
+   flex-grow: 1;
+   margin-right: 15px;
+}
+
+.item-actions {
+    flex-shrink: 0;
+}

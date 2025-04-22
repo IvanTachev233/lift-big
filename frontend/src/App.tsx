@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import ExercisesPage from './pages/ExercisesPage';
 import LogWorkoutPage from './pages/LogWorkoutPage';
+import WorkoutDetailPage from './pages/WorkoutDetailPage';
 import './App.css'
 
 // Component to protect routes
@@ -41,6 +42,7 @@ function App() {
             <Route path='/' element={<DashboardPage/>}/>
             <Route path='/exercises' element={<ExercisesPage/>}/>
             <Route path='/log-workout' element={<LogWorkoutPage/>}/>
+            <Route path="/workouts/:workoutId" element={<WorkoutDetailPage />} />
           </Route>
           {/* If the path doesnt exist navigate to base */}
           <Route path="*" element={<Navigate to="/" replace />} />
