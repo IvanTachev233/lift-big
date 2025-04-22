@@ -1,18 +1,25 @@
 // src/pages/LogWorkoutPage.tsx
-import React, { useEffect, useState, FormEvent, ChangeEvent } from 'react';
+import React, { useEffect, useState, FormEvent, ChangeEvent, useCallback } from 'react';
 import apiClient from '../services/api';
+import Calendar from 'react-calendar';
 import { Exercise, WorkoutSet, Workout } from '../types';
+import './LogWorkoutPage.css'
+type CalendarValue = Date | null | [Date | null, Date | null]
 
 // Helper to get today's date in YYYY-MM-DD format
-const getTodayDateString = (): string => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-    const day = String(today.getDate()).padStart(2, '0');
+const formatDateToYYYYMMDD = (date: Date | null): string => {
+    if(!date) return '';
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
 };
 
 const LogWorkoutPage = () => {
+    // State for calendar's selected date
+    const [ selectedDate, setSelectedDate ] = useState<Date>(new Date());
+
     // State for available exercises
     const [exercises, setExercises] = useState<Exercise[]>([]);
     const [loadingExercises, setLoadingExercises] = useState(true);
@@ -24,9 +31,9 @@ const LogWorkoutPage = () => {
     const [workoutError, setWorkoutError] = useState<string | null>(null);
 
     // State for the log set form
-    const [selectedExerciseId, setSelectedExerciseId] = useState<string>(''); // Store ID as string from select value
-    const [repsValue, setRepsValue] = useState<string>(''); // Store as string for input control
-    const [weightValue, setWeightValue] = useState<string>(''); // Store as string for input control
+    const [selectedExerciseId, setSelectedExerciseId] = useState<string>('');
+    const [repsValue, setRepsValue] = useState<string>('');
+    const [weightValue, setWeightValue] = useState<string>('');
     const [loadingSet, setLoadingSet] = useState(false);
     const [setError, setSetError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -47,21 +54,28 @@ const LogWorkoutPage = () => {
     }, []);
 
     // Function to find or create today's workout
-    const handleStartOrFindWorkout = async () => {
+    const handleStartOrFindWorkout = useCallback(async (dateToFind: Date) => {
         setLoadingWorkout(true);
         setWorkoutError(null);
         setCurrentWorkout(null); // Reset first
-        const today = getTodayDateString();
+        setSuccessMessage(null); // Clear messages
+        setSetError(null);
+
+        const dateString = formatDateToYYYYMMDD(dateToFind);
+        if(!dateString) {
+            setWorkoutError('Invalid date selected');
+            setLoadingWorkout(false);
+            return;
+        }
 
         try {
-            const response = await apiClient.get<Workout[]>(`/workouts/?date=${today}`); // Adjust endpoint/params as needed
-
+            const response = await apiClient.get<Workout[]>(`/workouts/?date=${dateString}`);
             if (response.data && response.data.length > 0) {
-                // Found existing workout(s) for today, use the first one (or implement selection logic)
+                // Found existing workout(s) for today, use the first one
                 setCurrentWorkout(response.data[0]);
             } else {
                 // No workout for today, create one
-                const createResponse = await apiClient.post<Workout>('/workouts/', { date: today });
+                const createResponse = await apiClient.post<Workout>('/workouts/', { date: dateString });
                 setCurrentWorkout(createResponse.data);
             }
         } catch (err: any) {
@@ -70,7 +84,21 @@ const LogWorkoutPage = () => {
         } finally {
             setLoadingWorkout(false);
         }
-    };
+    }, []);
+
+    // Load workout when date changes
+    useEffect(() => {
+        handleStartOrFindWorkout(selectedDate);
+    }, [selectedDate, handleStartOrFindWorkout]);
+
+    // Calendar Date Change Handler
+    const handleDateChange = (value: CalendarValue) => {
+        if (value instanceof Date) {
+            setSelectedDate(value);
+        } else {
+            console.warn('Non-single date selected:', value);
+        }
+    }
 
     // Function to handle logging a new set
     const handleLogSet = async (e: FormEvent<HTMLFormElement>) => {
@@ -104,8 +132,7 @@ const LogWorkoutPage = () => {
         try {
             const response = await apiClient.post<WorkoutSet>('/workoutsets/', setData);
             setSuccessMessage(`Set logged successfully! (ID: ${response.data.id})`);
-            // Clear form for next set (optional)
-            // setSelectedExerciseId(''); // Might want to keep exercise selected
+            // Clear form for next set
             setRepsValue('');
             setWeightValue('');
         } catch (err: any) {
@@ -117,82 +144,91 @@ const LogWorkoutPage = () => {
     };
 
     // Render Logic
-    if (loadingExercises) return <div>Loading exercises...</div>;
-    if (exerciseFetchError) return <div style={{ color: 'red' }}>{exerciseFetchError}</div>;
+    if (loadingExercises) return <div className="loading-message page-container">Loading exercises...</div>;
+    if (exerciseFetchError) return <div className="error-message page-container">{exerciseFetchError}</div>;
 
     return (
-        <div className="page-container">
+        // Use page-container for consistent padding/max-width
+        <div className="page-container log-workout-page">
             <h2>Log Workout</h2>
 
-            {!currentWorkout && (
-                <div>
-                    <button className="btn btn-primary" onClick={handleStartOrFindWorkout} disabled={loadingWorkout}>
-                        {loadingWorkout ? 'Starting...' : "Start/Find Today's Workout"}
-                    </button>
-                    {workoutError && <p style={{ color: 'red' }}>{workoutError}</p>}
-                </div>
-            )}
+            {/* Calendar Section */}
+            <div className="calendar-container">
+                <Calendar
+                    onChange={handleDateChange}
+                    value={selectedDate}
+                    maxDate={new Date()} // Prevent selecting future dates
+                />
+            </div>
 
-            {currentWorkout && (
-                <div>
+            {/* Workout Status Section */}
+            <div className="workout-status">
+                {loadingWorkout && <p className="loading-message">Loading workout for {formatDateToYYYYMMDD(selectedDate)}...</p>}
+                {workoutError && <p className="error-message">{workoutError}</p>}
+                {currentWorkout && !loadingWorkout && (
                     <h3>Logging for Workout on: {currentWorkout.date} (ID: {currentWorkout.id})</h3>
-                    <form onSubmit={handleLogSet}>
-                        {setError && <p style={{ color: 'red' }}>{setError}</p>}
-                        {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
-                        <div className="form-group">
-                            <label htmlFor="exercise">Exercise:</label>
-                            <select
-                                id="exercise"
-                                className="form-input"
-                                value={selectedExerciseId}
-                                onChange={(e: ChangeEvent<HTMLSelectElement>) => setSelectedExerciseId(e.target.value)}
-                                required
-                            >
-                                <option value="" disabled>-- Select Exercise --</option>
-                                {exercises.map(ex => (
-                                    <option key={ex.id} value={ex.id}>
-                                        {ex.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        
-                        {/* Reps Input */}
-                        <div className="form-group">
-                            <label htmlFor="reps">Reps:</label>
-                            <input
-                                type="number"
-                                id="reps"
-                                className="form-input"
-                                value={repsValue}
-                                onChange={(e: ChangeEvent<HTMLInputElement>) => setRepsValue(e.target.value)}
-                                min="1"
-                                required
-                            />
-                        </div>
+                )}
+                {!currentWorkout && !loadingWorkout && !workoutError && (
+                     <p>Select a date to view or start logging.</p> // Initial state or if date has no workout yet
+                )}
+            </div>
 
-                        {/* Weight Input */}
-                        <div className="form-group">
-                            <label htmlFor="weight">Weight:</label>
-                            <input
-                                type="number"
-                                id="weight"
-                                className="form-input" 
-                                value={weightValue}
-                                onChange={(e: ChangeEvent<HTMLInputElement>) => setWeightValue(e.target.value)}
-                                step="0.01"
-                                min="0"
-                                required
-                            />
-                        </div>
 
-                        <button type="submit" className="btn btn-primary" disabled={loadingSet}>
-                            {loadingSet ? 'Logging...' : 'Log Set'}
-                        </button>
-                    </form>
-                     {/* TODO: Display sets already logged for this workout? */}
-                </div>
-            )}
+            {/* Log Set Form Section - Only show if a workout is loaded */}
+            {currentWorkout && !loadingWorkout && (
+                <form onSubmit={handleLogSet} className="form-container log-set-form">
+                    <h4>Log a Set</h4>
+                    {setError && <p className="error-message">{setError}</p>}
+                    {successMessage && <p className="success-message">{successMessage}</p>}
+
+                    <div className="form-group">
+                        <label htmlFor="exercise">Exercise:</label>
+                        <select
+                            id="exercise"
+                            className="form-input"
+                            value={selectedExerciseId}
+                            onChange={(e: ChangeEvent<HTMLSelectElement>) => setSelectedExerciseId(e.target.value)}
+                            required
+                        >
+                            <option value="" disabled>-- Select Exercise --</option>
+                            {exercises.map(ex => (
+                                <option key={ex.id} value={ex.id}>
+                                    {ex.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="reps">Reps:</label>
+                        <input
+                            type="number"
+                            id="reps"
+                            className="form-input"
+                            value={repsValue}
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => setRepsValue(e.target.value)}
+                            min="1"
+                            required
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="weight">Weight:</label>
+                        <input
+                            type="number"
+                            id="weight"
+                            className="form-input"
+                            value={weightValue}
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => setWeightValue(e.target.value)}
+                            step="0.01"
+                            min="0"
+                            required
+                        />
+                    </div>
+                    <button type="submit" className="btn btn-primary" disabled={loadingSet}>
+                        {loadingSet ? 'Logging...' : 'Log Set'}
+                    </button>
+                </form>
+            )}                     
+            {/* TODO: Display sets already logged for this workout? */}
         </div>
     );
 };
