@@ -2,11 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import apiClient from '../services/api';
-import { Workout } from '../types'; // Import Workout type
+import { Workout } from '../types';
+import { Link } from 'react-router-dom';
 
 const DashboardPage = () => {
     const { user, logout } = useAuth();
-    const [workouts, setWorkouts] = useState<Workout[]>([]); // Use the Workout type
+    const [workouts, setWorkouts] = useState<Workout[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -43,15 +44,23 @@ const DashboardPage = () => {
                         {/* Use item-list class on ul */}
                         <ul className="item-list">
                             {workouts.map(workout => (
-                                // Use item-list-item class on li
-                                <li key={workout.id} className="item-list-item">
-                                    {/* Use item-title and item-details for structure */}
-                                    <span className="item-title">{workout.name || `Workout Session`}</span>
-                                    <span className="item-details">
-                                        <span className="label">Date:</span> {workout.date}
-                                        {workout.sets && ` - ${workout.sets.length} sets`}
-                                    </span>
-                                    {/* You could add a Link here to view workout details */}
+                                // Add item-list-item-flex class here maybe
+                                <li key={workout.id} className="item-list-item item-list-item-flex">
+                                    {/* Div to hold text content */}
+                                    <div className="item-content">
+                                        <span className="item-title">{workout.name || `Workout Session`}</span>
+                                        <span className="item-details">
+                                            <span className="label">Date:</span> {workout.date}
+                                        </span>
+                                    </div>
+                                    <div className="item-actions">
+                                        <Link
+                                            to={`/workouts/${workout.id}`}
+                                            className="btn btn-secondary btn-sm"
+                                        >
+                                            View Details
+                                        </Link>
+                                    </div>
                                 </li>
                             ))}
                         </ul>

@@ -45,13 +45,20 @@ class ExerciseViewSet(viewsets.ModelViewSet):
 class WorkoutViewSet(viewsets.ModelViewSet):
     serializer_class = WorkoutSerializer
     permission_classes = [permissions.IsAuthenticated]
-
     def get_queryset(self):
         """ This view should return a list of all workouts for
             the currently authenticated user.
         """
         # Filter workouts to only those owned by the logged-in user
-        return Workout.objects.filter(user=self.request.user)
+        queryset = Workout.objects.filter(user=self.request.user)
+        
+        # Filter by current date
+        requested_date_str = self.request.query_params.get('date', None)
+        if requested_date_str:
+            queryset = queryset.filter(date=requested_date_str)
+        
+        
+        return queryset
 
     def perform_create(self, serializer):
         """ Ensure the user creating the workout is set as the user. """

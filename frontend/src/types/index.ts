@@ -28,7 +28,7 @@ export interface Exercise {
 export interface WorkoutSet {
     id: number;
     workout: number;
-    exercise: string;
+    exercise: Exercise;
     // exercise_id: number;
     reps: number;
     weight: string;

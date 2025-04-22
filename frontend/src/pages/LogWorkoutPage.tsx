@@ -1,7 +1,7 @@
 // src/pages/LogWorkoutPage.tsx
 import React, { useEffect, useState, FormEvent, ChangeEvent } from 'react';
 import apiClient from '../services/api';
-import { Exercise, WorkoutSet, Workout } from '../types'; // Import necessary types
+import { Exercise, WorkoutSet, Workout } from '../types';
 
 // Helper to get today's date in YYYY-MM-DD format
 const getTodayDateString = (): string => {

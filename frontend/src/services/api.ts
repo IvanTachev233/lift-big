@@ -27,13 +27,10 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
         const token = localStorage.getItem('accessToken');
-        console.log(token);
         if (token) {
             // Make sure the headers object exists
             config.headers = config.headers ?? {};
             // Set the token
-            console.log(token);
-
             config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
