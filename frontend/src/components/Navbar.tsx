@@ -1,11 +1,10 @@
 // src/components/Navbar.tsx
 import React from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom'; // Use NavLink for active styling
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import './Navbar.css'; // We'll create this CSS file next
-
+import './Navbar.css';
 const Navbar: React.FC = () => {
-    const { isAuthenticated, logout, user } = useAuth(); // Get user too if needed
+    const { isAuthenticated, logout, user } = useAuth();
     const navigate = useNavigate();
     const handleLogout = () => {
         logout();
