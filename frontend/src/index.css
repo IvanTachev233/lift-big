@@ -1,18 +1,22 @@
 /* src/index.css */
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   padding: 0;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; /* More standard font stack */
-  background-color: #F5F5F5;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; /* More standard font stack */
+  background-color: #f5f5f5;
   color: #333333;
   line-height: 1.6;
   min-height: 100%;
@@ -32,14 +36,14 @@ body {
   width: 100%;
   display: flex;
   justify-content: center;
-  align-items: flex-start; 
+  align-items: flex-start;
   padding: 20px;
   overflow: auto;
   box-sizing: border-box;
 }
 
 .page-container {
-  max-width: 500px;
+  max-width: 90%;
   width: 100%;
   padding: 30px 40px;
   background-color: #ffffff;
@@ -51,26 +55,26 @@ body {
 }
 
 h2 {
-   color: #444;
-   margin-top: 0;
-   margin-bottom: 25px;
+  color: #444;
+  margin-top: 0;
+  margin-bottom: 25px;
 }
 h3 {
-    color: #555;
-    margin-top: 1.5em;
-    margin-bottom: 1em;
-    text-align: left;
+  color: #555;
+  margin-top: 1.5em;
+  margin-bottom: 1em;
+  text-align: left;
 }
 h4 {
-    color: #555;
-    margin-top: 1.5em;
-    margin-bottom: 1em;
-    text-align: left;
+  color: #555;
+  margin-top: 1.5em;
+  margin-bottom: 1em;
+  text-align: left;
 }
 
 /* Form Styling */
 .form-container {
-    text-align: left;
+  text-align: left;
 }
 
 .form-group {
@@ -96,13 +100,12 @@ h4 {
 }
 
 select.form-input {
-    appearance: auto;
+  appearance: auto;
 }
-
 
 .form-input:focus {
   outline: none;
-  border-color: #8A9A5B;
+  border-color: #8a9a5b;
   box-shadow: 0 0 0 2px rgba(138, 154, 91, 0.2);
 }
 
@@ -117,7 +120,9 @@ select.form-input {
   font-weight: bold;
   text-align: center;
   text-decoration: none;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
   width: 100%;
   box-sizing: border-box;
   font-family: inherit; /* Inherit font */
@@ -125,7 +130,7 @@ select.form-input {
 }
 
 .btn-primary {
-  background-color: #8A9A5B; /* Hazel Green */
+  background-color: #8a9a5b; /* Hazel Green */
   color: #ffffff;
 }
 
@@ -154,7 +159,9 @@ select.form-input {
   padding: 15px 20px;
   margin-bottom: 15px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  transition:
+    transform 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
   text-align: left;
 }
 
@@ -184,9 +191,9 @@ select.form-input {
 
 /* Error Message Styling */
 .error-message {
-  color: #D8000C;
-  background-color: #FFD2D2;
-  border: 1px solid #D8000C;
+  color: #d8000c;
+  background-color: #ffd2d2;
+  border: 1px solid #d8000c;
   padding: 10px 15px;
   border-radius: 4px;
   margin-top: 10px;
@@ -214,15 +221,15 @@ select.form-input {
 
 /* Dashboard Specifics */
 .dashboard-welcome {
-    font-size: 1.2em;
-    color: #555;
-    margin-bottom: 20px;
-    text-align: center;
+  font-size: 1.2em;
+  color: #555;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 .logout-button-container {
-    margin-top: 30px;
-    text-align: center;
+  margin-top: 30px;
+  text-align: center;
 }
 
 .btn-secondary {
@@ -243,16 +250,16 @@ select.form-input {
 }
 
 .item-list-item-flex {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .item-content {
-   flex-grow: 1;
-   margin-right: 15px;
+  flex-grow: 1;
+  margin-right: 15px;
 }
 
 .item-actions {
-    flex-shrink: 0;
+  flex-shrink: 0;
 }

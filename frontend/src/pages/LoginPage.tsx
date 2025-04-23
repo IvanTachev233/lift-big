@@ -5,57 +5,59 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const LoginPage = () => {
-    const [username, setUsername] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
-    const [error, setError] = useState<string | null>(null);
-    const {login, loading} = useAuth();
-    const navigate = useNavigate();
+  const [username, setUsername] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
+  const { login, loading } = useAuth();
+  const navigate = useNavigate();
 
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-        const success = await login(username, password);
-        console.log(success);
-        if(success) {
-            navigate('/dashboard');
-        } else {
-            setError('Login Failed. Check username and password');
-        }
-    };
+    const success = await login(username, password);
+    console.log(success);
+    if (success) {
+      navigate('/dashboard');
+    } else {
+      setError('Login Failed. Check username and password');
+    }
+  };
 
-    return (
-        <div className="page-container"> {/* Apply container style */}
-            <h2>Login</h2>
-            <form onSubmit={handleSubmit} className='form-container'>
-                {error && <p className="error-message">{error}</p>}
-                <div className="form-group">
-                    <label htmlFor='username'>Username:</label>
-                    <input 
-                        type='text'
-                        id='username'
-                        className="form-input"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        required    
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor='password'>Password:</label>
-                    <input 
-                        type='password'
-                        id='password'
-                        className="form-input"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required    
-                    />
-                </div>
-                <button type='submit' className="btn btn-primary"  disabled={loading}>
-                    {loading ? 'Logging in' : 'Login'}
-                </button>
-            </form>
+  return (
+    <div className='page-container'>
+      {' '}
+      {/* Apply container style */}
+      <h2>Login</h2>
+      <form onSubmit={handleSubmit} className='form-container'>
+        {error && <p className='error-message'>{error}</p>}
+        <div className='form-group'>
+          <label htmlFor='username'>Username:</label>
+          <input
+            type='text'
+            id='username'
+            className='form-input'
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
         </div>
-    )
+        <div className='form-group'>
+          <label htmlFor='password'>Password:</label>
+          <input
+            type='password'
+            id='password'
+            className='form-input'
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        <button type='submit' className='btn btn-primary' disabled={loading}>
+          {loading ? 'Logging in' : 'Login'}
+        </button>
+      </form>
+    </div>
+  );
 };
 
 export default LoginPage;

@@ -36,12 +36,12 @@ const WeekNavigator: React.FC<WeekNavigatorProps> = ({
   React.useEffect(() => {
     const currentVisibleWeekStart = startOfWeek(selectedDate, { weekStartsOn });
     if (!isSameDay(currentVisibleWeekStart, currentWeekStart)) {
-         setCurrentWeekStart(currentVisibleWeekStart);
+      setCurrentWeekStart(currentVisibleWeekStart);
     }
   }, [selectedDate, weekStartsOn]);
 
   const handleToday = () => {
-    setCurrentWeekStart(() => startOfWeek(startOfToday(),{ weekStartsOn }));
+    setCurrentWeekStart(() => startOfWeek(startOfToday(), { weekStartsOn }));
   };
 
   const handlePrevWeek = () => {
@@ -66,35 +66,46 @@ const WeekNavigator: React.FC<WeekNavigatorProps> = ({
 
   // Format the header display
   const weekEnd = endOfWeek(currentWeekStart, { weekStartsOn });
-  const weekHeaderFormat = format(currentWeekStart, 'MMM d') + ' - ' + format(weekEnd, 'MMM d, yyyy');
+  const weekHeaderFormat =
+    format(currentWeekStart, 'MMM d') + ' - ' + format(weekEnd, 'MMM d, yyyy');
 
   return (
-    <div className="week-navigator">
-      <div className="week-navigator-header">
-        <button onClick={handlePrevWeek} className="week-nav-button">&lt;</button>
-        <div className="week-nav-button-group">
-            <span className="week-navigator-title">{weekHeaderFormat}</span>
-            <button onClick={handleToday} className="week-nav-button today-button">Today</button>
+    <div className='week-navigator'>
+      <div className='week-navigator-header'>
+        <button onClick={handlePrevWeek} className='week-nav-button' aria-label='Previous week'>
+          &lt;
+        </button>
+        <span className='week-navigator-title'>{weekHeaderFormat}</span>
+        <div className='week-nav-button-group'>
+          <button onClick={handleToday} className='week-nav-button today-button'>
+            Today
+          </button>
+          <button onClick={handleNextWeek} className='week-nav-button' aria-label='Next week'>
+            &gt;
+          </button>
         </div>
-        <button onClick={handleNextWeek} className="week-nav-button" aria-label="Next week">&gt;</button>
-
       </div>
-      <div className="week-navigator-days">
+      <div className='week-navigator-days'>
         {daysOfWeek.map((day) => {
           const dayClasses = [
             'week-day',
             isSameDay(day, selectedDate) ? 'selected' : '',
             isToday(day) ? 'today' : '',
-          ].join(' ').trim();
+          ]
+            .join(' ')
+            .trim();
 
           return (
             <div
               key={day.toISOString()}
               className={dayClasses}
               onClick={() => handleDayClick(day)}
+              role='button'
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && handleDayClick(day)}
             >
-              <span className="day-name">{format(day, 'EEE')}</span>
-              <span className="day-number">{format(day, 'd')}</span>
+              <span className='day-name'>{format(day, 'EEE')}</span>
+              <span className='day-number'>{format(day, 'd')}</span>
             </div>
           );
         })}

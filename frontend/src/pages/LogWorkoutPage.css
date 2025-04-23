@@ -1,99 +1,99 @@
 /* src/pages/LogWorkoutPage.css */
 
 .calendar-container {
-    margin-bottom: 30px;
-    max-width: 400px;
-    margin-left: auto;
-    margin-right: auto;
-    background-color: #fff;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  }
-  
-  /* Style the react-calendar component */
-  .react-calendar {
-    width: 100% !important;
-    border: none;
-    font-family: inherit;
-  }
-  
-  /* Style tiles (days) */
-  .react-calendar__tile {
-    border-radius: 4px;
-    padding: 0.75em 0.5em;
-  }
-  
-  /* Style selected day */
-  .react-calendar__tile--active {
-    background-color: #8A9A5B !important;
-    color: white !important;
-  }
-  .react-calendar__tile--active:enabled:hover,
-  .react-calendar__tile--active:enabled:focus {
-    background-color: #78884a !important;
-  }
-  
-  /* Style today's tile */
-  .react-calendar__tile--now {
-    background-color: #e6f0d4;
-    font-weight: bold;
-  }
-  .react-calendar__tile--now:enabled:hover,
-  .react-calendar__tile--now:enabled:focus {
-      background-color: #d8e6c1;
-  }
-  
-  /* Style navigation buttons */
-  .react-calendar__navigation button {
-      font-weight: bold;
-      color: #333;
-      border-radius: 4px;
-  }
-  .react-calendar__navigation button:enabled:hover,
-  .react-calendar__navigation button:enabled:focus {
-      background-color: #f0f0f0;
-  }
-  
-  /* Container for workout status message */
-  .workout-status {
-      text-align: center;
-      margin-bottom: 20px;
-      min-height: 2em;
-      font-weight: 500;
-  }
-  .workout-status h3 {
-      margin: 0;
-      color: #444;
-      font-size: 1.1em;
-  }
-  
-  /* Style for the log set form container */
-  .log-set-form {
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 1px solid #eee;
-  }
-  .log-set-form h4 {
-      margin-top: 0;
-      text-align: center;
-      margin-bottom: 20px;
-  }
-  
-  /* Style for success messages (similar to error) */
-  .success-message {
-    color: #2F855A; /* Green */
-    background-color: #C6F6D5;
-    border: 1px solid #9AE6B4;
-    padding: 10px 15px;
-    border-radius: 4px;
-    margin-top: 10px;
-    margin-bottom: 20px;
-    text-align: center;
-    font-size: 0.9rem;
-  }
-  
-  /* Add specific class to page container */
-  .log-workout-page {
-      max-width: 650px;
-  }
+  margin-bottom: 30px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Style the react-calendar component */
+.react-calendar {
+  width: 100% !important;
+  border: none;
+  font-family: inherit;
+}
+
+/* Style tiles (days) */
+.react-calendar__tile {
+  border-radius: 4px;
+  padding: 0.75em 0.5em;
+}
+
+/* Style selected day */
+.react-calendar__tile--active {
+  background-color: #8a9a5b !important;
+  color: white !important;
+}
+.react-calendar__tile--active:enabled:hover,
+.react-calendar__tile--active:enabled:focus {
+  background-color: #78884a !important;
+}
+
+/* Style today's tile */
+.react-calendar__tile--now {
+  background-color: #e6f0d4;
+  font-weight: bold;
+}
+.react-calendar__tile--now:enabled:hover,
+.react-calendar__tile--now:enabled:focus {
+  background-color: #d8e6c1;
+}
+
+/* Style navigation buttons */
+.react-calendar__navigation button {
+  font-weight: bold;
+  color: #333;
+  border-radius: 4px;
+}
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+  background-color: #f0f0f0;
+}
+
+/* Container for workout status message */
+.workout-status {
+  text-align: center;
+  margin-bottom: 20px;
+  min-height: 2em;
+  font-weight: 500;
+}
+.workout-status h3 {
+  margin: 0;
+  color: #444;
+  font-size: 1.1em;
+}
+
+/* Style for the log set form container */
+.log-set-form {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+.log-set-form h4 {
+  margin-top: 0;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Style for success messages (similar to error) */
+.success-message {
+  color: #2f855a; /* Green */
+  background-color: #c6f6d5;
+  border: 1px solid #9ae6b4;
+  padding: 10px 15px;
+  border-radius: 4px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* Add specific class to page container */
+.log-workout-page {
+  /* max-width: 650px; */
+}

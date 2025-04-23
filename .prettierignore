@@ -1,0 +1,25 @@
+# Ignore dependency directories
+node_modules/
+venv/
+
+# Ignore build output
+dist/
+build/
+staticfiles/ # Django collectstatic output
+
+# Ignore database files
+*.sqlite3
+
+# Ignore environment files
+.env*
+
+# Ignore Git directory
+.git/
+
+# Ignore VS Code settings
+.vscode/
+
+# Add any other specific files or directories
+# e.g., coverage reports, specific generated files
+coverage/
+*.log
