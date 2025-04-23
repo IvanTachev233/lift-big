@@ -1,10 +1,9 @@
 // src/pages/LogWorkoutPage.tsx
 import React, { useEffect, useState, FormEvent, ChangeEvent, useCallback } from 'react';
 import apiClient from '../services/api';
-import Calendar from 'react-calendar';
+import WeekNavigator from '../components/WeekNavigator';
 import { Exercise, WorkoutSet, Workout } from '../types';
 import './LogWorkoutPage.css'
-type CalendarValue = Date | null | [Date | null, Date | null]
 
 // Helper to get today's date in YYYY-MM-DD format
 const formatDateToYYYYMMDD = (date: Date | null): string => {
@@ -92,13 +91,9 @@ const LogWorkoutPage = () => {
     }, [selectedDate, handleStartOrFindWorkout]);
 
     // Calendar Date Change Handler
-    const handleDateChange = (value: CalendarValue) => {
-        if (value instanceof Date) {
-            setSelectedDate(value);
-        } else {
-            console.warn('Non-single date selected:', value);
-        }
-    }
+    const handleDateSelect = (date: Date) => {
+        setSelectedDate(date);
+    };
 
     // Function to handle logging a new set
     const handleLogSet = async (e: FormEvent<HTMLFormElement>) => {
@@ -153,13 +148,11 @@ const LogWorkoutPage = () => {
             <h2>Log Workout</h2>
 
             {/* Calendar Section */}
-            <div className="calendar-container">
-                <Calendar
-                    onChange={handleDateChange}
-                    value={selectedDate}
-                    maxDate={new Date()} // Prevent selecting future dates
-                />
-            </div>
+            <WeekNavigator
+                selectedDate={selectedDate}
+                onDateSelect={handleDateSelect}
+                weekStartsOn={1} // TODO [LB-8]: Make starting date a user option
+            />
 
             {/* Workout Status Section */}
             <div className="workout-status">
