@@ -11,6 +11,7 @@ const defaultAuthValue: AuthContextType = {
   isAuthenticated: false,
   loading: false,
   login: async () => false,
+  register: async () => false,
   logout: () => {},
 };
 
@@ -90,6 +91,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const register = async (
+    email: string,
+    username: string,
+    password: string,
+    password2: string
+  ): Promise<boolean> => {
+    setLoading(true);
+    console.log('Attempting registering for:', username); // Debug
+    try {
+      const response = await apiClient.post<User>('/register/', {
+        email,
+        username,
+        password,
+        password2,
+      });
+
+      // Check for successful status code (usually 201 Created)
+      if (response.status === 201) {
+        console.log('Register was successful:', response.data);
+        setLoading(false);
+        return true; // Indicate registration success
+      } else {
+        // Handle unexpected success status code if necessary
+        console.warn('Registration returned unexpected status:', response.status);
+        setLoading(false);
+        return false;
+      }
+    } catch (error: any) {
+      console.error('Register failed:', error.response?.data || error.message);
+      setLoading(false);
+      return false; // Indicate registration failure
+    }
+  };
+
   const logout = (): void => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
@@ -102,6 +137,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     accessToken,
     user,
     login,
+    register,
     logout,
     isAuthenticated: !!accessToken && !!user,
     loading: loading || authLoading,

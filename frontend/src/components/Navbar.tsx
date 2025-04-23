@@ -102,7 +102,11 @@ const Navbar: React.FC = () => {
                 Login
               </NavLink>
             </li>
-            {/* <li><NavLink to="/register" className={getNavLinkClass} onClick={closeMenu}>Register</NavLink></li> */}
+            <li>
+              <NavLink to='/register' className={getNavLinkClass} onClick={closeMenu}>
+                Register
+              </NavLink>
+            </li>
           </>
         )}
       </ul>

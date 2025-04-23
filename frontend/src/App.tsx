@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-
 import { useAuth } from './contexts/AuthContext';
 import AppLayout from './components/AppLayout';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import ExercisesPage from './pages/ExercisesPage';
 import LogWorkoutPage from './pages/LogWorkoutPage';
@@ -32,6 +33,7 @@ function App() {
         <Route element={<AppLayout />}>
           <Route element={<PublicRoute />}>
             <Route path='/login' element={<LoginPage />} />
+            <Route path='/register' element={<RegisterPage />} />
             {/* TODO [LB-3]: Add register page */}
           </Route>
 
