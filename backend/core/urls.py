@@ -6,12 +6,13 @@ from . import views
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
-router.register(r'users', views.UserViewSet, basename='user')
-router.register(r'exercises', views.ExerciseViewSet, basename='exercise')
-router.register(r'workouts', views.WorkoutViewSet, basename='workout')
-router.register(r'workoutsets', views.WorkoutSetViewSet, basename='workoutset')
+router.register(r"users", views.UserViewSet, basename="user")
+router.register(r"exercises", views.ExerciseViewSet, basename="exercise")
+router.register(r"workouts", views.WorkoutViewSet, basename="workout")
+router.register(r"workoutsets", views.WorkoutSetViewSet, basename="workoutset")
 
 urlpatterns = [
-    path('users/me/', views.CurrentUserView.as_view(), name='current-user'),
-    path('', include(router.urls)),
+    path("users/me/", views.CurrentUserView.as_view(), name="current-user"),
+    path("register/", views.RegisterView.as_view(), name="register"),
+    path("", include(router.urls)),
 ]

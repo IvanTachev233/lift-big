@@ -2,41 +2,61 @@ from django.shortcuts import render
 from django.db.models import Q
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import viewsets, permissions
+from rest_framework import generics, viewsets, permissions
 from django.contrib.auth.models import User
 from .models import Exercise, Workout, WorkoutSet
-from .serializers import UserSerializer, ExerciseSerializer, WorkoutSerializer, WorkoutSetSerializer
+from .serializers import (
+    RegisterSerializer,
+    UserSerializer,
+    ExerciseSerializer,
+    WorkoutSerializer,
+    WorkoutSetSerializer,
+)
+
 
 class CurrentUserView(APIView):
-    permission_classes = [permissions.IsAuthenticated] # Ensure user is logged in
+    permission_classes = [permissions.IsAuthenticated]  # Ensure user is logged in
 
     def get(self, request):
-        serializer = UserSerializer(request.user) # request.user is populated by JWTAuthentication
+        serializer = UserSerializer(
+            request.user
+        )  # request.user is populated by JWTAuthentication
         return Response(serializer.data)
-    
+
 
 # Provides list and detail views for users. Restricted to admin users.
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = User.objects.all().order_by('-date_joined')
+    queryset = User.objects.all().order_by("-date_joined")
     serializer_class = UserSerializer
     permissions_classes = [permissions.IsAdminUser]
+
+
+"""API endpoint that allows users to register
+Accepts POST requests with username, email, password, password2.
+"""
+
+
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = [permissions.AllowAny]
+    serializer_class = RegisterSerializer
+
 
 # Allows authenticated users to manage their exercises
 class ExerciseViewSet(viewsets.ModelViewSet):
     serializer_class = ExerciseSerializer
-    permission_classes = [permissions.IsAuthenticated] # Must be logged in
+    permission_classes = [permissions.IsAuthenticated]  # Must be logged in
 
     def get_queryset(self):
-        """ This view should return a list of all exercises for
-            the currently authenticated user or standard exercises (owner=None).
+        """This view should return a list of all exercises for
+        the currently authenticated user or standard exercises (owner=None).
         """
         user = self.request.user
         # Allows users to see their own exercises AND exercises with no owner
         return Exercise.objects.filter(Q(owner=user) | Q(owner__isnull=True))
 
     def perform_create(self, serializer):
-        """ Ensure the user creating the exercise is set as the owner. """
-        # Only allow users to create exercises for themselves (or set owner=None if logic allows)
+        """Ensure the user creating the exercise is set as the owner."""
         serializer.save(owner=self.request.user)
 
 
@@ -45,23 +65,23 @@ class ExerciseViewSet(viewsets.ModelViewSet):
 class WorkoutViewSet(viewsets.ModelViewSet):
     serializer_class = WorkoutSerializer
     permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
-        """ This view should return a list of all workouts for
-            the currently authenticated user.
+        """This view should return a list of all workouts for
+        the currently authenticated user.
         """
         # Filter workouts to only those owned by the logged-in user
         queryset = Workout.objects.filter(user=self.request.user)
-        
+
         # Filter by current date
-        requested_date_str = self.request.query_params.get('date', None)
+        requested_date_str = self.request.query_params.get("date", None)
         if requested_date_str:
             queryset = queryset.filter(date=requested_date_str)
-        
-        
+
         return queryset
 
     def perform_create(self, serializer):
-        """ Ensure the user creating the workout is set as the user. """
+        """Ensure the user creating the workout is set as the user."""
         serializer.save(user=self.request.user)
 
 
@@ -72,14 +92,16 @@ class WorkoutSetViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        """ This view should return a list of all workout sets belonging
-            to the workouts owned by the currently authenticated user.
+        """This view should return a list of all workout sets belonging
+        to the workouts owned by the currently authenticated user.
         """
         # Filter sets based on the owner of the parent workout
         return WorkoutSet.objects.filter(workout__user=self.request.user)
 
     def perform_create(self, serializer):
-        workout_id = serializer.validated_data.get('workout').id
+        workout_id = serializer.validated_data.get("workout").id
         if Workout.objects.get(id=workout_id).user != self.request.user:
-            raise serializers.ValidationError("You can only add sets to your own workouts.")
+            raise serializers.ValidationError(
+                "You can only add sets to your own workouts."
+            )
         serializer.save()
