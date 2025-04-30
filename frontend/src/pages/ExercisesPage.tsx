@@ -1,12 +1,18 @@
-// src/pages/ExercisesPage.tsx
-import React, { useEffect, useState, FormEvent } from 'react';
+// src/pages/ExercisesPage.tsx (Refactored Exercises Page)
+
+import React, { useEffect, useState, FormEvent, ChangeEvent } from 'react';
 import apiClient from '../services/api';
-import { Exercise } from '../types'; // Import Exercise type
+import { Exercise } from '../types';
+// Import react-bootstrap components
+import Container from 'react-bootstrap/Container';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
+import Alert from 'react-bootstrap/Alert';
+import Spinner from 'react-bootstrap/Spinner';
+import ListGroup from 'react-bootstrap/ListGroup';
+import Card from 'react-bootstrap/Card'; // Use Card for form section
 
-interface ExerciseFormProps {
-  onExerciseCreated: (exercise: Exercise) => void;
-}
-
+// Define body part options here or import from a constants file
 const bodyPartOptions: { value: string; label: string }[] = [
   { value: 'CH', label: 'Chest' },
   { value: 'BK', label: 'Back' },
@@ -18,6 +24,11 @@ const bodyPartOptions: { value: string; label: string }[] = [
   { value: 'OT', label: 'Other' },
 ];
 
+// ExerciseForm Sub-Component
+interface ExerciseFormProps {
+  onExerciseCreated: (exercise: Exercise) => void;
+}
+
 const ExerciseForm: React.FC<ExerciseFormProps> = ({ onExerciseCreated }) => {
   const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
@@ -28,80 +39,79 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({ onExerciseCreated }) => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
     try {
       const response = await apiClient.post<Exercise>('/exercises/', {
         name,
-        description,
+        description: description || null,
         body_part: bodyPart,
       });
-      onExerciseCreated(response.data); // Notify parent component (ExercisesPage)
+      onExerciseCreated(response.data);
       setName('');
       setDescription('');
       setBodyPart('');
-      setError(null);
     } catch (err: any) {
       console.error('Failed to create exercise:', err.response?.data);
-      setError('Failed to create exercise.');
+      setError(err.response?.data?.name?.[0] || 'Failed to create exercise.'); // Show specific name error if available
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className='form-container'
-      style={{
-        marginTop: '30px',
-        borderTop: '1px solid #eee',
-        paddingTop: '20px',
-      }}
-    >
-      <h4>Create New Exercise</h4>
-      {error && <p className='error-message'>{error}</p>}
-      <div className='form-group'>
-        <label htmlFor='name'>Name:</label>
-        <input
-          type='text'
-          id='name'
-          className='form-input'
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-      </div>
-      <div className='form-group'>
-        <label htmlFor='description'>Description:</label>
-        <textarea
-          id='description'
-          className='form-input'
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-      </div>
-      <div className='form-group'>
-        <label htmlFor='bodyPart'>Body Part:</label>
-        <select
-          id='bodyPart'
-          className='form-input'
-          value={bodyPart}
-          onChange={(e) => setBodyPart(e.target.value)}
-          required
-        >
-          <option value='' disabled>
-            Please select...
-          </option>
-          {bodyPartOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </div>
-      <button type='submit' className='btn btn-primary' disabled={loading}>
-        {loading ? 'Creating...' : 'Create Exercise'}
-      </button>
-    </form>
+    <Card className='mt-4'>
+      <Card.Body>
+        <Card.Title as='h4'>Create New Exercise</Card.Title>
+        {error && (
+          <Alert variant='danger' className='mt-3'>
+            {error}
+          </Alert>
+        )}
+        <Form onSubmit={handleSubmit} className='mt-3'>
+          <Form.Group className='mb-3' controlId='exerciseName'>
+            <Form.Label>Name</Form.Label>
+            <Form.Control
+              type='text'
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </Form.Group>
+          <Form.Group className='mb-3' controlId='exerciseDescription'>
+            <Form.Label>Description (Optional)</Form.Label>
+            <Form.Control
+              as='textarea'
+              rows={2}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              disabled={loading}
+            />
+          </Form.Group>
+          <Form.Group className='mb-3' controlId='exerciseBodyPart'>
+            <Form.Label>Body Part</Form.Label>
+            <Form.Select
+              value={bodyPart}
+              onChange={(e) => setBodyPart(e.target.value)}
+              required
+              disabled={loading}
+            >
+              <option value='' disabled>
+                Please select...
+              </option>
+              {bodyPartOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </Form.Select>
+          </Form.Group>
+          <Button variant='primary' type='submit' className='liftbig-button' disabled={loading}>
+            {loading ? 'Creating...' : 'Create Exercise'}
+          </Button>
+        </Form>
+      </Card.Body>
+    </Card>
   );
 };
 
@@ -115,7 +125,7 @@ const ExercisesPage = () => {
     apiClient
       .get<Exercise[]>('/exercises/')
       .then((response) => {
-        setExercises(response.data);
+        setExercises(response.data.sort((a, b) => a.name.localeCompare(b.name)));
         setError(null);
       })
       .catch((err) => {
@@ -137,40 +147,48 @@ const ExercisesPage = () => {
   };
 
   return (
-    <div className='page-container'>
-      <h2>Exercises</h2>
+    <Container fluid='lg' className='py-4'>
+      <h2 className='text-center mb-4'>Exercises</h2>
 
-      {loading && <div className='loading-message'>Loading exercises...</div>}
-      {error && <div className='error-message'>{error}</div>}
+      {loading && (
+        <div className='text-center'>
+          <Spinner animation='border' role='status'>
+            <span className='visually-hidden'>Loading...</span>
+          </Spinner>
+        </div>
+      )}
+      {error && <Alert variant='danger'>{error}</Alert>}
 
       {!loading &&
         !error &&
         (exercises.length > 0 ? (
-          // Use item-list class on ul
-          <ul className='item-list'>
+          <ListGroup>
             {exercises.map((ex) => (
-              // Use item-list-item class on li
-              <li key={ex.id} className='item-list-item'>
-                {/* Use item-title and item-details */}
-                <span className='item-title'>{ex.name}</span>
-                <span className='item-details'>
-                  <span className='label'>Body Part:</span> {getBodyPartLabel(ex.body_part)}
-                  {ex.owner && (
-                    <span style={{ fontStyle: 'italic', marginLeft: '10px' }}>(Custom)</span>
-                  )}
-                </span>
-                {/* Add Edit/Delete buttons here later if needed */}
-              </li>
+              <ListGroup.Item
+                key={ex.id}
+                className='d-flex justify-content-between align-items-start'
+              >
+                <div className='ms-2 me-auto'>
+                  <div className='fw-bold'>{ex.name}</div>
+                  <span className='text-muted small'>
+                    Body Part: {getBodyPartLabel(ex.body_part)}
+                    {ex.owner && <span className='fst-italic ms-2'>(Custom)</span>}
+                  </span>
+                </div>
+                {/* Add Edit/Delete buttons here too */}
+                <Button variant='outline-secondary' size='sm'>
+                  Edit
+                </Button>
+              </ListGroup.Item>
             ))}
-          </ul>
+          </ListGroup>
         ) : (
-          // Use empty-list-message class
-          <p className='empty-list-message'>No exercises found. Add one below!</p>
+          <Alert variant='info'>No exercises found. Add one below!</Alert>
         ))}
 
       {/* Render the form for creating exercises */}
       <ExerciseForm onExerciseCreated={handleExerciseCreated} />
-    </div>
+    </Container>
   );
 };
 
