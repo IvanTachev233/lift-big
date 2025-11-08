@@ -114,6 +114,52 @@ You need to run both the backend and frontend development servers simultaneously
 
 3.  **Access the App:** Open your web browser and navigate to the **frontend URL** (e.g., `http://localhost:5173`). The React app will load and make calls to the backend API running on port 8000.
 
+### One-Command Dev Environment (Optional)
+
+If you are tired of opening two terminals, you can start both servers with the helper script in the project root:
+
+```bash
+# from the repository root
+./dev.sh
+```
+
+The script will:
+
+* activate `backend/venv` and launch `python manage.py runserver`
+* start the Vite dev server from the `frontend` directory (chooses npm/yarn/pnpm automatically)
+* stop both processes when you press `Ctrl+C`
+
+Ensure you have already created the backend virtual environment (`backend/venv`) and installed frontend dependencies.  
+You can override defaults when needed, for example:
+
+```bash
+FRONTEND_DEV_CMD="npm run dev -- --host 0.0.0.0" BACKEND_VENV_DIR="$HOME/.venvs/django" ./dev.sh
+```
+
+### Docker Dev Environment (Optional)
+
+Prefer containers? The repository ships with `docker-compose.yml` that mirrors the local workflow.
+
+1. Make sure Docker Desktop (or another Docker engine) is running.
+2. Copy backend environment variables:
+   ```bash
+   cp backend/.env.example backend/.env  # then edit values as needed
+   ```
+   Optionally set `VITE_API_URL` in the root `.env` (defaults to `http://localhost:8000/api`).
+3. Build and start both services:
+   ```bash
+   docker compose up --build
+   ```
+   * Backend available at `http://localhost:8000` (auto-migrates on start, hot reload via `runserver`).
+   * Frontend available at `http://localhost:5173` with Vite HMR (file changes picked up thanks to bind mounts).
+4. Stop everything with `Ctrl+C` (foreground) or `docker compose down`.
+
+Need to run management commands in the container?
+
+```bash
+docker compose exec backend python manage.py createsuperuser
+```
+
 ## Running Tests
 
 ### Backend Tests
