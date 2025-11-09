@@ -36,9 +36,14 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    has_fitbit = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ["id", "username", "email"]
+        fields = ["id", "username", "email", "has_fitbit"]
+
+    def get_has_fitbit(self, obj):
+        return hasattr(obj, "fitbit_token")
 
 
 class ExerciseSerializer(serializers.ModelSerializer):

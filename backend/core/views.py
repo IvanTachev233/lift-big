@@ -1,10 +1,19 @@
-from django.shortcuts import render
+import urllib.parse
+from datetime import timedelta
+
+import requests
+from django.conf import settings
 from django.db.models import Q
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import generics, viewsets, permissions
 from django.contrib.auth.models import User
-from .models import Exercise, Workout, WorkoutSet
+from django.core import signing
+from django.http import HttpResponseRedirect
+from django.utils import timezone
+from rest_framework import generics, viewsets, permissions, serializers
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .models import Exercise, Workout, WorkoutSet, FitbitToken
+from .pagination import StandardResultsSetPagination
 from .serializers import (
     RegisterSerializer,
     UserSerializer,
@@ -12,6 +21,10 @@ from .serializers import (
     WorkoutSerializer,
     WorkoutSetSerializer,
 )
+
+
+FITBIT_AUTH_URL = "https://www.fitbit.com/oauth2/authorize"
+FITBIT_TOKEN_URL = "https://api.fitbit.com/oauth2/token"
 
 
 class CurrentUserView(APIView):
@@ -42,6 +55,139 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
 
 
+class FitbitConnectView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        """Redirect the authenticated user to Fitbit's consent screen or return the URL."""
+        required_settings = [
+            settings.FITBIT_CLIENT_ID,
+            settings.FITBIT_CLIENT_SECRET,
+            settings.FITBIT_REDIRECT_URI,
+        ]
+        print(required_settings)
+        if not all(required_settings):
+            return Response(
+                {"detail": "Fitbit OAuth is not configured on the server."},
+                status=500,
+            )
+
+        state = signing.dumps({"user_id": request.user.id})
+        params = {
+            "response_type": "code",
+            "client_id": settings.FITBIT_CLIENT_ID,
+            "redirect_uri": settings.FITBIT_REDIRECT_URI,
+            "scope": settings.FITBIT_SCOPE,
+            "state": state,
+        }
+        authorization_url = f"{FITBIT_AUTH_URL}?{urllib.parse.urlencode(params)}"
+        should_redirect = (
+            request.query_params.get("redirect", "true").lower() != "false"
+        )
+        if should_redirect:
+            return HttpResponseRedirect(authorization_url)
+        return Response({"authorization_url": authorization_url})
+
+
+class FitbitCallbackView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        """Handle Fitbit redirect and store OAuth tokens."""
+        error = request.query_params.get("error")
+        if error:
+            return Response(
+                {"detail": f"Fitbit returned an error: {error}"},
+                status=400,
+            )
+
+        code = request.query_params.get("code")
+        state = request.query_params.get("state")
+
+        if not code or not state:
+            return Response(
+                {"detail": "Missing OAuth code or state parameters."},
+                status=400,
+            )
+
+        try:
+            payload = signing.loads(state, max_age=600)
+            user_id = payload["user_id"]
+        except signing.BadSignature:
+            return Response({"detail": "Invalid state parameter."}, status=400)
+
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response(
+                {"detail": "User not found for provided state."}, status=404
+            )
+
+        required_settings = [
+            settings.FITBIT_CLIENT_ID,
+            settings.FITBIT_CLIENT_SECRET,
+            settings.FITBIT_REDIRECT_URI,
+        ]
+        if not all(required_settings):
+            return Response(
+                {"detail": "Fitbit OAuth is not configured on the server."},
+                status=500,
+            )
+
+        data = {
+            "client_id": settings.FITBIT_CLIENT_ID,
+            "grant_type": "authorization_code",
+            "redirect_uri": settings.FITBIT_REDIRECT_URI,
+            "code": code,
+        }
+
+        try:
+            token_response = requests.post(
+                FITBIT_TOKEN_URL,
+                data=data,
+                auth=(settings.FITBIT_CLIENT_ID, settings.FITBIT_CLIENT_SECRET),
+                timeout=10,
+            )
+        except requests.RequestException as exc:
+            return Response(
+                {"detail": "Unable to reach Fitbit token endpoint.", "error": str(exc)},
+                status=502,
+            )
+
+        if token_response.status_code != 200:
+            detail = (
+                token_response.json()
+                if token_response.headers.get("content-type", "").startswith(
+                    "application/json"
+                )
+                else token_response.text
+            )
+            return Response(
+                {
+                    "detail": "Failed to exchange code for tokens.",
+                    "fitbit_response": detail,
+                },
+                status=token_response.status_code,
+            )
+
+        token_payload = token_response.json()
+        expires_in = token_payload.get("expires_in", 0)
+        expires_at = timezone.now() + timedelta(seconds=expires_in)
+
+        FitbitToken.objects.update_or_create(
+            user=user,
+            defaults={
+                "access_token": token_payload.get("access_token", ""),
+                "refresh_token": token_payload.get("refresh_token", ""),
+                "expires_at": expires_at,
+                "scope": token_payload.get("scope", ""),
+                "token_type": token_payload.get("token_type", ""),
+            },
+        )
+
+        return Response({"detail": "Fitbit account connected successfully."})
+
+
 # Allows authenticated users to manage their exercises
 class ExerciseViewSet(viewsets.ModelViewSet):
     serializer_class = ExerciseSerializer
@@ -65,6 +211,7 @@ class ExerciseViewSet(viewsets.ModelViewSet):
 class WorkoutViewSet(viewsets.ModelViewSet):
     serializer_class = WorkoutSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         """This view should return a list of all workouts for

@@ -3,53 +3,119 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import apiClient from '../services/api';
-import { Workout, User } from '../types';
+import { Workout } from '../types';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
-import { Link } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
+import ReadinessScore from '../components/ReadinessScore';
+import { Link } from 'react-router-dom';
+
+const DASHBOARD_WORKOUT_LIMIT = 5;
+
+interface PaginatedWorkoutsResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: Workout[];
+}
+
+interface FitbitConnectResponse {
+  authorization_url: string;
+}
 
 const DashboardPage = () => {
   const { user } = useAuth();
+  console.log(user);
   const [workouts, setWorkouts] = useState<Workout[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [totalWorkoutCount, setTotalWorkoutCount] = useState<number>(0);
+  const [loading, setLoadingWorkouts] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [connectingFitbit, setConnectingFitbit] = useState(false);
+  const [fitbitError, setFitbitError] = useState<string | null>(null);
 
   // Fetch Workouts Effect
   useEffect(() => {
-    setLoading(true);
+    setLoadingWorkouts(true);
     apiClient
-      .get<Workout[]>('/workouts/')
+      .get<PaginatedWorkoutsResponse>('/workouts/', {
+        params: { page: 1, page_size: DASHBOARD_WORKOUT_LIMIT },
+      })
       .then((response) => {
-        setWorkouts(response.data);
+        console.log(response);
+        setTotalWorkoutCount(response.data.count);
+        setWorkouts(response.data.results);
         setError(null);
       })
       .catch((err) => {
         console.error('Failed to fetch workouts:', err);
         setError('Failed to load workouts.');
       })
-      .finally(() => setLoading(false));
+      .finally(() => setLoadingWorkouts(false));
   }, []);
+
+  const handleFitbitConnect = async () => {
+    setFitbitError(null);
+    setConnectingFitbit(true);
+    try {
+      const response = await apiClient.get<FitbitConnectResponse>('fitbit/connect/', {
+        params: { redirect: 'false' },
+      });
+      const authorizationUrl = response.data.authorization_url;
+      if (authorizationUrl) {
+        window.location.href = authorizationUrl;
+      } else {
+        setFitbitError('Server did not provide a Fitbit authorization URL.');
+      }
+    } catch (err) {
+      console.error('Failed to start Fitbit connect flow:', err);
+      setFitbitError('Unable to connect to Fitbit right now.');
+    } finally {
+      setConnectingFitbit(false);
+    }
+  };
 
   return (
     <Container fluid='lg' className='py-4'>
       {' '}
       <h2 className='text-center mb-4'>Dashboard</h2>
-      {user && <p className='text-center mb-4 fs-5'>Welcome, {user.username}!</p>}{' '}
+      {user && (
+        <div className='text-center mb-4'>
+          <p className='fs-5 mb-3'>Welcome, {user.username}!</p>
+          {!user.has_fitbit && (
+            <Button variant='success' onClick={handleFitbitConnect} disabled={connectingFitbit}>
+              {connectingFitbit ? 'Connecting to Fitbit...' : 'Connect Fitbit'}
+            </Button>
+          )}
+
+          <Button variant='danger'>
+            {connectingFitbit ? 'Removing Fitbit Connection...' : 'Disconnect Fitbit'}
+          </Button>
+          {fitbitError && <div className='text-danger small mt-2'>{fitbitError}</div>}
+        </div>
+      )}
       <Row className='g-4'>
         {' '}
         {/* Readiness Column */}
         <Col md={5} lg={4}>
-          {' '}
+          <ReadinessScore />
+          {/* TODO: Add more widgets? */}
         </Col>
         {/* Workouts Column */}
         <Col md={7} lg={8}>
           {' '}
-          <h3 className='mb-3'>Recent Workouts</h3>
+          <div className='d-flex justify-content-between align-items-center mb-3'>
+            <h3>Recent Workouts</h3>
+            {/* Show "View All" only if there are more workouts than shown */}
+            {totalWorkoutCount > DASHBOARD_WORKOUT_LIMIT && (
+              <Button as={Link} to='/workouts' variant='outline-secondary' size='sm'>
+                View All ({totalWorkoutCount})
+              </Button>
+            )}
+          </div>
           {loading && (
             <div className='text-center'>
               <Spinner animation='border' role='status'>
