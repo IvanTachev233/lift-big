@@ -10,6 +10,7 @@ const defaultAuthValue: AuthContextType = {
   accessToken: null,
   user: null,
   isAuthenticated: false,
+  has_fitbit: false,
   loading: false,
   login: async () => false,
   register: async () => false,
@@ -71,7 +72,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         refresh: string;
       }
 
-      const response = await apiClient.post<TokenResponse>('/token/', { username, password });
+      const response = await apiClient.post<TokenResponse>('token/', { username, password });
       console.log('Login API Response:', response.data); // Debug: See the tokens?
       const { access, refresh } = response.data;
 
@@ -142,6 +143,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     isAuthenticated: !!accessToken && !!user,
     loading: loading || authLoading,
+    has_fitbit: false,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,0 +1,58 @@
+.dashboard-page {
+  max-width: 1000px;
+  text-align: left;
+}
+.dashboard-page h2 {
+  text-align: center;
+}
+.dashboard-page .dashboard-welcome {
+  text-align: center;
+}
+
+.dashboard-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+/* Styling for the columns */
+.dashboard-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.readiness-column {
+  flex: 1 1 300px;
+  max-width: 450px;
+}
+.readiness-column .readiness-container {
+  margin: 0;
+}
+
+.main-column {
+  flex: 2 1 400px;
+}
+
+.main-column h3 {
+  margin-top: 0;
+}
+
+.main-column .item-list {
+  margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+  .dashboard-layout {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .readiness-column {
+    max-width: 100%;
+    flex-basis: auto;
+  }
+  .main-column {
+    flex-basis: auto;
+  }
+}

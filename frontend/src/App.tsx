@@ -10,6 +10,7 @@ import ExercisesPage from './pages/ExercisesPage';
 import LogWorkoutPage from './pages/LogWorkoutPage';
 import WorkoutDetailPage from './pages/WorkoutDetailPage';
 import './App.css';
+import AllWorkoutsPage from './pages/AllWorkoutsPage';
 
 // Component to protect routes
 const ProtectedRoute = () => {
@@ -41,6 +42,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path='/' element={<DashboardPage />} />
             <Route path='/exercises' element={<ExercisesPage />} />
+            <Route path='/workouts' element={<AllWorkoutsPage />} />
             <Route path='/log-workout' element={<LogWorkoutPage />} />
             <Route path='/workouts/:workoutId' element={<WorkoutDetailPage />} />
           </Route>

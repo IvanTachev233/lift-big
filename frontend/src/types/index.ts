@@ -1,6 +1,7 @@
 // src/types/index.ts
 
 export interface User {
+  has_fitbit: boolean;
   id: number;
   username: string;
   email?: string;
@@ -10,6 +11,7 @@ export interface AuthContextType {
   accessToken: string | null;
   user: User | null;
   isAuthenticated: boolean;
+  has_fitbit: boolean;
   loading: boolean;
   login: (username: string, password: string) => Promise<boolean>;
   register: (

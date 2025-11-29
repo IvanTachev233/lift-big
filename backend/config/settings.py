@@ -185,3 +185,11 @@ CORS_ALLOWED_ORIGINS = [
 # CORS_ALLOW_CREDENTIALS = True
 
 # CORS_ALLOW_ALL_ORIGINS = True
+
+# Fitbit OAuth configuration
+FITBIT_CLIENT_ID = os.getenv('FITBIT_CLIENT_ID', '')
+FITBIT_CLIENT_SECRET = os.getenv('FITBIT_CLIENT_SECRET', '')
+FITBIT_REDIRECT_URI = os.getenv('FITBIT_REDIRECT_URI', '')
+FITBIT_SCOPE = os.getenv(
+    'FITBIT_SCOPE', 'activity heartrate sleep profile'
+)

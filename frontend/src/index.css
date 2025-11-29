@@ -1,20 +1,62 @@
 /* src/index.css */
+:root {
+  --app-hazel-green: #8a9a5b;
+  --app-hazel-green-darker: #78884a;
+  --app-navbar-bg: #2c3e50;
+  --app-readiness-bg: #2c3e50;
+  --app-dark-text: #333333;
+  --app-light-text: #ecf0f1;
+  --app-light-bg: #f5f5f5;
+  --app-warning-yellow: #f1c40f;
+  --app-danger-red: #e74c3c;
+  --app-grey: #7f8c8d;
 
-.btn-primary {
-  --bs-btn-color: #fff;
-  --bs-btn-bg: #8a9a5b;
-  --bs-btn-border-color: #8a9a5b;
-  --bs-btn-hover-color: #fff;
-  --bs-btn-hover-bg: #78884a;
-  --bs-btn-hover-border-color: #708044;
-  --bs-btn-focus-shadow-rgb: 138, 154, 91; /* RGB for Hazel Green */
-  --bs-btn-active-color: #fff;
-  --bs-btn-active-bg: #708044;
+  /* Override Bootstrap Variables */
+  --bs-primary: var(--app-hazel-green);
+  --bs-secondary: var(--app-grey);
+  --bs-success: var(--app-hazel-green);
+  --bs-info: #0dcaf0;
+  --bs-warning: var(--app-warning-yellow);
+  --bs-danger: var(--app-danger-red);
+  --bs-light: var(--app-light-bg);
+  --bs-dark: var(--app-navbar-bg);
+
+  --bs-btn-bg: var(--bs-primary);
+  --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-hover-bg: var(--app-hazel-green-darker);
+  --bs-btn-hover-border-color: var(--app-hazel-green-darker);
+  --bs-btn-active-bg: var(--app-hazel-green-darker);
   --bs-btn-active-border-color: #68783e;
-  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-  --bs-btn-disabled-color: #fff;
-  --bs-btn-disabled-bg: #a8b38a; /* Lighter disabled Hazel */
+  --bs-btn-disabled-bg: #a8b38a;
   --bs-btn-disabled-border-color: #a8b38a;
+
+  --bs-link-color: var(--app-hazel-green);
+  --bs-link-hover-color: var(--app-hazel-green-darker);
+
+  --bs-pagination-active-bg: var(--app-hazel-green);
+  --bs-pagination-active-border-color: var(--app-hazel-green);
+
+  --bs-body-color: var(--app-dark-text);
+  --bs-body-bg: var(--app-light-bg);
+
+  --bs-font-sans-serif:
+    system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans',
+    'Liberation Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    'Noto Color Emoji';
+  --bs-font-monospace:
+    SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+
+  --bs-blue: #0d6efd;
+  --bs-indigo: #6610f2;
+  --bs-purple: #6f42c1;
+  --bs-pink: #d63384;
+  --bs-orange: #fd7e14;
+  --bs-teal: #20c997;
+  --bs-cyan: #0dcaf0;
+  --bs-white: #fff;
+  --bs-gray: #6c757d;
+  --bs-gray-dark: #343a40;
+  --bs-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
 }
 
 .page-container {
@@ -29,12 +71,68 @@
   max-width: 1000px;
 }
 
-.form-control.is-invalid ~ .invalid-feedback,
-.form-select.is-invalid ~ .invalid-feedback {
-  display: block; /* Ensure feedback is shown */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: var(--bs-font-sans-serif);
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  line-height: 1.6;
+  min-height: 100%;
+}
+#root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
+/* --- Layout --- */
+.main-content {
+  flex-grow: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px;
+  overflow: auto;
+  box-sizing: border-box;
+}
+
+.app-navbar.navbar {
+  background-color: var(--app-navbar-bg) !important;
+}
+
+.form-control.is-invalid ~ .invalid-feedback,
+.form-select.is-invalid ~ .invalid-feedback {
+  display: block;
+}
 .alert[variant='danger'] + .form-group,
 .alert[variant='success'] + .form-group {
   margin-top: 0.5rem;
+}
+
+.btn-primary {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--app-hazel-green);
+  --bs-btn-border-color: var(--app-hazel-green);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--app-hazel-green-darker);
+  --bs-btn-hover-border-color: var(--bs-btn-hover-border-color-bg);
+  --bs-btn-focus-shadow-rgb: 138, 154, 91;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--bs-btn-active-bg);
+  --bs-btn-active-border-color: var(--bs-btn-active-border-bg);
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: var(--bs-btn-disabled-bg);
+  --bs-btn-disabled-border-color: var(--bs-btn-disabled-border-bg);
 }

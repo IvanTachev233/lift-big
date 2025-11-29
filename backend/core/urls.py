@@ -14,5 +14,8 @@ router.register(r"workoutsets", views.WorkoutSetViewSet, basename="workoutset")
 urlpatterns = [
     path("users/me/", views.CurrentUserView.as_view(), name="current-user"),
     path("register/", views.RegisterView.as_view(), name="register"),
+    path("fitbit/connect/", views.FitbitConnectView.as_view(), name="fitbit-connect"),
+    path("fitbit/callback/", views.FitbitCallbackView.as_view(), name="fitbit-callback"),
+    path("fitbit/data/", views.FitbitDataView.as_view(), name="fitbit-data"),
     path("", include(router.urls)),
 ]
