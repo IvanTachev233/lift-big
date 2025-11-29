@@ -188,6 +188,93 @@ class FitbitCallbackView(APIView):
         return Response({"detail": "Fitbit account connected successfully."})
 
 
+class FitbitDataView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        """Fetch RHR and HRV data from Fitbit."""
+        try:
+            fitbit_token = request.user.fitbit_token
+        except FitbitToken.DoesNotExist:
+            return Response(
+                {"detail": "Fitbit account not connected."},
+                status=404,
+            )
+
+        # Check if token is expired and refresh if necessary
+        if fitbit_token.is_expired:
+            refresh_success = self.refresh_fitbit_token(fitbit_token)
+            if not refresh_success:
+                return Response(
+                    {"detail": "Fitbit token expired and refresh failed. Please reconnect."},
+                    status=401,
+                )
+
+        headers = {"Authorization": f"Bearer {fitbit_token.access_token}"}
+
+        # Fetch Resting Heart Rate
+        # https://dev.fitbit.com/build/reference/web-api/heart-rate/get-heart-rate-time-series/
+        rhr_url = "https://api.fitbit.com/1/user/-/activities/heart/date/today/1d.json"
+        try:
+            rhr_response = requests.get(rhr_url, headers=headers, timeout=10)
+            rhr_data = rhr_response.json()
+            # Extract RHR. Structure: activities-heart -> [0] -> value -> restingHeartRate
+            resting_heart_rate = None
+            if "activities-heart" in rhr_data and rhr_data["activities-heart"]:
+                resting_heart_rate = rhr_data["activities-heart"][0].get("value", {}).get("restingHeartRate")
+        except Exception as e:
+            print(f"Error fetching RHR: {e}")
+            resting_heart_rate = None
+
+        # Fetch HRV
+        # https://dev.fitbit.com/build/reference/web-api/heart-rate-variability/get-hrv-summary-by-date/
+        hrv_url = "https://api.fitbit.com/1/user/-/hrv/date/today.json"
+        try:
+            hrv_response = requests.get(hrv_url, headers=headers, timeout=10)
+            hrv_data = hrv_response.json()
+            # Extract HRV. Structure: hrv -> [0] -> value -> dailyRmssd
+            hrv_value = None
+            if "hrv" in hrv_data and hrv_data["hrv"]:
+                 # Usually returns a list, we take the first one (most recent/today)
+                hrv_value = hrv_data["hrv"][0].get("value", {}).get("dailyRmssd")
+        except Exception as e:
+            print(f"Error fetching HRV: {e}")
+            hrv_value = None
+
+        return Response({
+            "resting_heart_rate": resting_heart_rate,
+            "hrv": hrv_value
+        })
+
+    def refresh_fitbit_token(self, fitbit_token):
+        """Refreshes the Fitbit access token."""
+        data = {
+            "grant_type": "refresh_token",
+            "refresh_token": fitbit_token.refresh_token,
+        }
+        try:
+            response = requests.post(
+                FITBIT_TOKEN_URL,
+                data=data,
+                auth=(settings.FITBIT_CLIENT_ID, settings.FITBIT_CLIENT_SECRET),
+                timeout=10,
+            )
+            if response.status_code == 200:
+                token_payload = response.json()
+                expires_in = token_payload.get("expires_in", 0)
+                fitbit_token.access_token = token_payload.get("access_token")
+                fitbit_token.refresh_token = token_payload.get("refresh_token")
+                fitbit_token.expires_at = timezone.now() + timedelta(seconds=expires_in)
+                fitbit_token.save()
+                return True
+            else:
+                print(f"Failed to refresh token: {response.text}")
+                return False
+        except Exception as e:
+            print(f"Error refreshing token: {e}")
+            return False
+
+
 # Allows authenticated users to manage their exercises
 class ExerciseViewSet(viewsets.ModelViewSet):
     serializer_class = ExerciseSerializer

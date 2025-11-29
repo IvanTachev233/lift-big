@@ -27,6 +27,11 @@ interface FitbitConnectResponse {
   authorization_url: string;
 }
 
+interface FitbitData {
+  resting_heart_rate: number | null;
+  hrv: number | null;
+}
+
 const DashboardPage = () => {
   const { user } = useAuth();
   console.log(user);
@@ -36,6 +41,7 @@ const DashboardPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [connectingFitbit, setConnectingFitbit] = useState(false);
   const [fitbitError, setFitbitError] = useState<string | null>(null);
+  const [fitbitData, setFitbitData] = useState<FitbitData | null>(null);
 
   // Fetch Workouts Effect
   useEffect(() => {
@@ -56,6 +62,21 @@ const DashboardPage = () => {
       })
       .finally(() => setLoadingWorkouts(false));
   }, []);
+
+  // Fetch Fitbit Data Effect
+  useEffect(() => {
+    if (user?.has_fitbit) {
+      apiClient
+        .get<FitbitData>('/fitbit/data/')
+        .then((response) => {
+          setFitbitData(response.data);
+        })
+        .catch((err) => {
+          console.error('Failed to fetch Fitbit data:', err);
+          // Set an error state specifically for Fitbit widget
+        });
+    }
+  }, [user]);
 
   const handleFitbitConnect = async () => {
     setFitbitError(null);
@@ -102,7 +123,33 @@ const DashboardPage = () => {
         {/* Readiness Column */}
         <Col md={5} lg={4}>
           <ReadinessScore />
-          {/* TODO: Add more widgets? */}
+
+          {/* Fitbit Data Widget */}
+          {user?.has_fitbit && (
+            <div className='mt-4 p-3 border rounded shadow-sm bg-white'>
+              <h5 className='mb-3'>Fitbit Health Metrics</h5>
+              {fitbitData ? (
+                <ListGroup variant='flush'>
+                  <ListGroup.Item className='d-flex justify-content-between align-items-center'>
+                    <span>Resting Heart Rate</span>
+                    <span className='fw-bold'>
+                      {fitbitData.resting_heart_rate
+                        ? `${fitbitData.resting_heart_rate} bpm`
+                        : 'N/A'}
+                    </span>
+                  </ListGroup.Item>
+                  <ListGroup.Item className='d-flex justify-content-between align-items-center'>
+                    <span>HRV (RMSSD)</span>
+                    <span className='fw-bold'>
+                      {fitbitData.hrv ? `${fitbitData.hrv} ms` : 'N/A'}
+                    </span>
+                  </ListGroup.Item>
+                </ListGroup>
+              ) : (
+                <div className='text-center text-muted'>Loading Fitbit data...</div>
+              )}
+            </div>
+          )}
         </Col>
         {/* Workouts Column */}
         <Col md={7} lg={8}>
