@@ -35,7 +35,6 @@ function App() {
           <Route element={<PublicRoute />}>
             <Route path='/login' element={<LoginPage />} />
             <Route path='/register' element={<RegisterPage />} />
-            {/* TODO [LB-3]: Add register page */}
           </Route>
 
           {/* Protected only for auth users */}

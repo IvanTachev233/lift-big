@@ -32,6 +32,8 @@ interface FitbitData {
   hrv: number | null;
 }
 
+import Leaderboard from '../components/Leaderboard';
+
 const DashboardPage = () => {
   const { user } = useAuth();
   console.log(user);
@@ -51,7 +53,6 @@ const DashboardPage = () => {
         params: { page: 1, page_size: DASHBOARD_WORKOUT_LIMIT },
       })
       .then((response) => {
-        console.log(response);
         setTotalWorkoutCount(response.data.count);
         setWorkouts(response.data.results);
         setError(null);
@@ -123,7 +124,6 @@ const DashboardPage = () => {
         {/* Readiness Column */}
         <Col md={5} lg={4}>
           <ReadinessScore />
-
           {/* Fitbit Data Widget */}
           {user?.has_fitbit && (
             <div className='mt-4 p-3 border rounded shadow-sm bg-white'>
@@ -149,7 +149,10 @@ const DashboardPage = () => {
                 <div className='text-center text-muted'>Loading Fitbit data...</div>
               )}
             </div>
-          )}
+          )}{' '}
+          <div className='mt-4'>
+            <Leaderboard />
+          </div>
         </Col>
         {/* Workouts Column */}
         <Col md={7} lg={8}>
@@ -158,7 +161,7 @@ const DashboardPage = () => {
             <h3>Recent Workouts</h3>
             {/* Show "View All" only if there are more workouts than shown */}
             {totalWorkoutCount > DASHBOARD_WORKOUT_LIMIT && (
-              <Button as={Link} to='/workouts' variant='outline-secondary' size='sm'>
+              <Button as={Link as any} to='/workouts' variant='outline-secondary' size='sm'>
                 View All ({totalWorkoutCount})
               </Button>
             )}

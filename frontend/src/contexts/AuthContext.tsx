@@ -135,16 +135,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     console.log('User logged out');
   };
 
-  const value: AuthContextType = {
-    accessToken,
-    user,
-    login,
-    register,
-    logout,
-    isAuthenticated: !!accessToken && !!user,
-    loading: loading || authLoading,
-    has_fitbit: false,
-  };
+  const value: AuthContextType = React.useMemo(
+    () => ({
+      accessToken,
+      user,
+      login,
+      register,
+      logout,
+      isAuthenticated: !!accessToken && !!user,
+      loading: loading || authLoading,
+      has_fitbit: false,
+    }),
+    [accessToken, user, loading, authLoading]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
