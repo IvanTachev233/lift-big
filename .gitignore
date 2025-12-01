@@ -29,3 +29,6 @@ __pycache__/
 *.py[cod]
 .env*
 !.env.example
+
+# Go
+service/lift-big

@@ -5,11 +5,24 @@ services:
       dockerfile: Dockerfile
     env_file:
       - ./backend/.env
+    environment:
+      - REDIS_HOST=redis
     volumes:
       - ./backend:/app
     ports:
       - "8000:8000"
     command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+  go-service:
+    build:
+      context: ./service
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - REDIS_ADDR=redis:6379
+    depends_on:
+      - redis
 
   frontend:
     build:
@@ -26,5 +39,9 @@ services:
     depends_on:
       - backend
 
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
 volumes:
   frontend_node_modules:

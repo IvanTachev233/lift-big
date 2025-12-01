@@ -1,6 +1,13 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+from django.db.models import Sum, F
+import redis
+import os
+
+r = redis.Redis(host=os.environ.get('REDIS_HOST', 'localhost'), port=6379, db=0)
 
 
 class BodyPartChoices(models.TextChoices):
@@ -75,7 +82,12 @@ class Workout(models.Model):
     notes = models.TextField(
         blank=True, null=True, help_text="Optional notes about the workout session"
     )
-
+    
+    total_weight_lifted = models.IntegerField(
+        default=0,
+        help_text="Total weight lifted in the workout"
+    )
+    
     class Meta:
         ordering = ["-date", "-id"]
 
@@ -83,6 +95,26 @@ class Workout(models.Model):
         username = self.user.username if self.user else "Unknown User"
         return f"{username}'s workout on {self.date.strftime('%Y-%m-%d')}"
 
+    def update_total_weight(self):
+        """Calculates and updates the total weight lifted for this workout."""
+        # Calculate sum of (reps * weight) for all sets
+        total = self.sets.aggregate(
+            total_volume=Sum(F('reps') * F('weight'))
+        )['total_volume'] or 0
+        
+        self.total_weight_lifted = int(total)
+        self.save()
+
+
+@receiver(post_save, sender=Workout)
+def update_leaderboard(sender, instance, **kwargs):
+    # Calculate total weight lifted across all workouts for this user
+    user_total = Workout.objects.filter(user=instance.user).aggregate(
+        total=Sum('total_weight_lifted')
+    )['total'] or 0
+    
+    r.zadd("leaderboard", {instance.user.username: user_total})
+    r.publish("leaderboard_updates", "update_trigger")
 
 # WorkoutSet Model
 class WorkoutSet(models.Model):
@@ -120,6 +152,14 @@ class WorkoutSet(models.Model):
         return f"Set of {exercise_name}: {self.reps} reps @ {self.weight} units"
 
 
+@receiver(post_save, sender=WorkoutSet)
+@receiver(post_delete, sender=WorkoutSet)
+def update_workout_total(sender, instance, **kwargs):
+    if instance.workout:
+        instance.workout.update_total_weight()
+
+
+
 class FitbitToken(models.Model):
     """Stores Fitbit OAuth tokens for a user."""
 
@@ -145,3 +185,4 @@ class FitbitToken(models.Model):
     @property
     def is_expired(self):
         return timezone.now() >= self.expires_at
+        
