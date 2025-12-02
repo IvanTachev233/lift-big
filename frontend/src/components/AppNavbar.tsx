@@ -7,6 +7,7 @@ import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 
 import './AppNavbar.css';
+import Logo from './Logo';
 
 const AppNavbar: React.FC = () => {
   const { isAuthenticated, logout, user } = useAuth();
@@ -29,7 +30,7 @@ const AppNavbar: React.FC = () => {
           to={isAuthenticated ? '/' : '/login'}
           style={{ textDecoration: 'none', color: 'inherit' }}
         >
-          Lift Big
+          <Logo height={30} />
         </Navbar.Brand>
 
         <Navbar.Toggle aria-controls='basic-navbar-nav' />
