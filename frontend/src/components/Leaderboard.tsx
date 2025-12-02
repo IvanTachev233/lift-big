@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Spinner, Alert } from 'react-bootstrap';
-import axios from 'axios';
+import Alert from 'react-bootstrap/Alert';
+
+import LoadingOverlay from './LoadingOverlay';
 
 interface LeaderboardEntry {
   username: string;
@@ -19,7 +20,6 @@ const Leaderboard: React.FC = () => {
     eventSource.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        console.log('Live Leaderboard Update:', data);
         if (Array.isArray(data)) {
           setLeaderboard(data);
           setError(null);
@@ -61,13 +61,7 @@ const Leaderboard: React.FC = () => {
 
       {/* Body */}
       <div className='card-body p-0'>
-        {loading && (
-          <div className='text-center p-4'>
-            <Spinner animation='border' role='status'>
-              <span className='visually-hidden'>Loading...</span>
-            </Spinner>
-          </div>
-        )}
+        <LoadingOverlay loading={loading} />
         {error && (
           <Alert variant='danger' className='m-3'>
             {error}

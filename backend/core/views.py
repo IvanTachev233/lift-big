@@ -3,7 +3,7 @@ from datetime import timedelta
 
 import requests
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.contrib.auth.models import User
 from django.core import signing
 from django.http import HttpResponseRedirect
@@ -301,6 +301,7 @@ class WorkoutViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
+
         """This view should return a list of all workouts for
         the currently authenticated user.
         """
@@ -311,6 +312,9 @@ class WorkoutViewSet(viewsets.ModelViewSet):
         requested_date_str = self.request.query_params.get("date", None)
         if requested_date_str:
             queryset = queryset.filter(date=requested_date_str)
+        
+        # Prioritize workouts with sets, then by ID (newest first)
+        queryset = queryset.annotate(sets_count=Count('sets')).order_by('-sets_count', '-id')
 
         return queryset
 

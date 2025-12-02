@@ -87,6 +87,13 @@ class Workout(models.Model):
         default=0,
         help_text="Total weight lifted in the workout"
     )
+
+    exercises = models.ManyToManyField(
+        Exercise,
+        blank=True,
+        related_name="planned_workouts",
+        help_text="Exercises planned for this workout"
+    )
     
     class Meta:
         ordering = ["-date", "-id"]

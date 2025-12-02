@@ -64,7 +64,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (username: string, password: string): Promise<boolean> => {
     setLoading(true);
-    console.log('Attempting login for:', username); // Debug
     try {
       // Define expected response for login
       interface TokenResponse {
@@ -73,7 +72,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       const response = await apiClient.post<TokenResponse>('token/', { username, password });
-      console.log('Login API Response:', response.data); // Debug: See the tokens?
       const { access, refresh } = response.data;
 
       localStorage.setItem('accessToken', access);
@@ -100,7 +98,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     password2: string
   ): Promise<boolean> => {
     setLoading(true);
-    console.log('Attempting registering for:', username); // Debug
     try {
       const response = await apiClient.post<User>('/register/', {
         email,
@@ -111,7 +108,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       // Check for successful status code (usually 201 Created)
       if (response.status === 201) {
-        console.log('Register was successful:', response.data);
         setLoading(false);
         return true; // Indicate registration success
       } else {
@@ -131,8 +127,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     setAccessToken(null);
-    // setUser(null);
-    console.log('User logged out');
   };
 
   const value: AuthContextType = React.useMemo(

@@ -6,10 +6,10 @@ import { Workout, WorkoutSet } from '../types';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
-import Spinner from 'react-bootstrap/Spinner';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Card from 'react-bootstrap/Card';
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
+import LoadingOverlay from '../components/LoadingOverlay';
 
 const WorkoutDetailPage = () => {
   // Get workoutId from URL parameters
@@ -54,9 +54,7 @@ const WorkoutDetailPage = () => {
   if (loading) {
     return (
       <Container className='text-center py-5'>
-        <Spinner animation='border' role='status'>
-          <span className='visually-hidden'>Loading Workout...</span>
-        </Spinner>
+        <LoadingOverlay loading={loading} />
       </Container>
     );
   }

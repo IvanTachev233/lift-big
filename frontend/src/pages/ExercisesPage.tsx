@@ -11,6 +11,7 @@ import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Card from 'react-bootstrap/Card'; // Use Card for form section
+import LoadingOverlay from '../components/LoadingOverlay';
 
 // Define body part options here or import from a constants file
 const bodyPartOptions: { value: string; label: string }[] = [
@@ -150,13 +151,8 @@ const ExercisesPage = () => {
     <Container fluid='lg' className='py-4'>
       <h2 className='text-center mb-4'>Exercises</h2>
 
-      {loading && (
-        <div className='text-center'>
-          <Spinner animation='border' role='status'>
-            <span className='visually-hidden'>Loading...</span>
-          </Spinner>
-        </div>
-      )}
+      <LoadingOverlay loading={loading} />
+
       {error && <Alert variant='danger'>{error}</Alert>}
 
       {!loading &&

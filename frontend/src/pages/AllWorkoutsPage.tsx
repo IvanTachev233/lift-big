@@ -1,18 +1,17 @@
 // src/pages/AllWorkoutsPage.tsx (Example Refactor)
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useCallback, useEffect, useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+
 import apiClient from '../services/api';
-import { Workout, User } from '../types';
+import { Workout } from '../types';
 import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Alert from 'react-bootstrap/Alert';
-import Spinner from 'react-bootstrap/Spinner';
+
 import { Breadcrumb, Button, Pagination } from 'react-bootstrap';
-import ReadinessScore from '../components/ReadinessScore';
 import { Link, useNavigate } from 'react-router-dom';
+import ConfirmationModal from '../components/ConfirmationModal';
+import LoadingOverlay from '../components/LoadingOverlay';
 
 const DASHBOARD_WORKOUT_LIMIT = 10;
 
@@ -24,10 +23,13 @@ interface PaginatedWorkoutsResponse {
 }
 
 const AllWorkoutsPage = () => {
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [workoutToDelete, setWorkoutToDelete] = useState<number | null>(null);
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalWorkoutCount, setTotalWorkoutCount] = useState<number>(0);
@@ -59,6 +61,35 @@ const AllWorkoutsPage = () => {
     }
   }, []);
 
+  const handleDeleteClick = (e: React.MouseEvent, workoutId: number) => {
+    e.stopPropagation();
+    setWorkoutToDelete(workoutId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!workoutToDelete) return;
+
+    try {
+      await apiClient.delete(`/workouts/${workoutToDelete}/`);
+
+      // If this was the last item on the page and not the first page, go back one page
+      if (workouts.length === 1 && currentPage > 1) {
+        setCurrentPage((prev) => prev - 1);
+      } else {
+        // Otherwise, refresh the current page to pull in a new item from the next page
+        fetchWorkouts(currentPage);
+      }
+
+      setShowDeleteModal(false);
+      setWorkoutToDelete(null);
+    } catch (err) {
+      console.error('Failed to delete workout', err);
+      alert('Failed to delete workout');
+      setShowDeleteModal(false);
+    }
+  };
+
   useEffect(() => {
     fetchWorkouts(currentPage);
   }, [currentPage, fetchWorkouts]);
@@ -73,7 +104,8 @@ const AllWorkoutsPage = () => {
   const renderPaginationItems = () => {
     let items = [];
     const maxPagesToShow = 5;
-    let startPage, endPage;
+    let startPage = 1;
+    let endPage = 1;
 
     if (totalPages <= maxPagesToShow) {
       startPage = 1;
@@ -160,52 +192,64 @@ const AllWorkoutsPage = () => {
 
       <h2 className='text-center mb-4'>All Workouts</h2>
 
-      {loading && (
-        <div className='text-center'>
-          <Spinner animation='border' role='status'>
-            <span className='visually-hidden'>Loading...</span>
-          </Spinner>
-        </div>
-      )}
-      {error && <Alert variant='danger'>{error}</Alert>}
+      <div style={{ position: 'relative', minHeight: '200px' }}>
+        <LoadingOverlay loading={loading} />
 
-      {!loading &&
-        !error &&
-        (workouts.length > 0 ? (
+        {!error && (
           <>
-            <ListGroup className='mb-4'>
-              {workouts.map((workout) => (
-                // Make list item clickable to view details
-                <ListGroup.Item
-                  key={workout.id}
-                  action
-                  onClick={() => navigate(`/workouts/${workout.id}`)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div className='d-flex justify-content-between align-items-start'>
-                    <div className='ms-2 me-auto'>
-                      <div className='fw-bold'>{workout.name || `Workout Session`}</div>
-                      <span className='text-muted small'>Date: {workout.date}</span>
-                    </div>
-                    {/* Optionally add a small indicator or badge */}
-                  </div>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
+            {workouts.length > 0 ? (
+              <>
+                <ListGroup className='mb-4'>
+                  {workouts.map((workout) => (
+                    // Make list item clickable to view details
+                    <ListGroup.Item
+                      key={workout.id}
+                      action
+                      onClick={() => navigate(`/workouts/${workout.id}`)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <div className='d-flex justify-content-between align-items-center'>
+                        <div className='ms-2 me-auto'>
+                          <div className='fw-bold'>{workout.name || `Workout Session`}</div>
+                          <span className='text-muted small'>Date: {workout.date}</span>
+                        </div>
+                        <Button
+                          variant='danger'
+                          size='sm'
+                          onClick={(e) => handleDeleteClick(e, workout.id)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
 
-            {/* Render Pagination if more than one page */}
-            {totalPages > 1 && (
-              <div className='d-flex justify-content-center'>
-                <Pagination>{renderPaginationItems()}</Pagination>
-              </div>
+                {/* Render Pagination if more than one page */}
+                {totalPages > 1 && (
+                  <div className='d-flex justify-content-center'>
+                    <Pagination>{renderPaginationItems()}</Pagination>
+                  </div>
+                )}
+                <p className='text-center text-muted small mt-2'>
+                  Showing {workouts.length} of {totalWorkoutCount} workouts
+                </p>
+              </>
+            ) : (
+              !loading && <Alert variant='info'>No workouts found.</Alert>
             )}
-            <p className='text-center text-muted small mt-2'>
-              Showing {workouts.length} of {totalWorkoutCount} workouts
-            </p>
           </>
-        ) : (
-          <Alert variant='info'>No workouts found.</Alert>
-        ))}
+        )}
+      </div>
+      <ConfirmationModal
+        show={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+        title='Delete Workout'
+        message='Are you sure you want to delete this workout? This action cannot be undone.'
+        confirmText='Delete'
+        variant='danger'
+      />
     </Container>
   );
 };
