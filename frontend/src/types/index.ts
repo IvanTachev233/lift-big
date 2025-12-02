@@ -51,4 +51,12 @@ export interface Workout {
   name: string | null;
   notes: string | null;
   sets: WorkoutSet[];
+  exercises: Exercise[];
+}
+
+export interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
 }

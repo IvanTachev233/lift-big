@@ -9,8 +9,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Alert from 'react-bootstrap/Alert';
-import Spinner from 'react-bootstrap/Spinner';
-import { Button } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
 import ReadinessScore from '../components/ReadinessScore';
 import { Link } from 'react-router-dom';
 
@@ -33,6 +32,7 @@ interface FitbitData {
 }
 
 import Leaderboard from '../components/Leaderboard';
+import LoadingOverlay from '../components/LoadingOverlay';
 
 const DashboardPage = () => {
   const { user } = useAuth();
@@ -166,13 +166,7 @@ const DashboardPage = () => {
               </Button>
             )}
           </div>
-          {loading && (
-            <div className='text-center'>
-              <Spinner animation='border' role='status'>
-                <span className='visually-hidden'>Loading...</span>
-              </Spinner>
-            </div>
-          )}
+          <LoadingOverlay loading={loading} />
           {error && <Alert variant='danger'>{error}</Alert>}
           {!loading &&
             !error &&

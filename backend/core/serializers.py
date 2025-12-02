@@ -71,11 +71,17 @@ class WorkoutSetSerializer(serializers.ModelSerializer):
 class WorkoutSerializer(serializers.ModelSerializer):
     # Display related sets nested within the workout detail
     sets = WorkoutSetSerializer(many=True, read_only=True)
+    
+    # Display planned exercises
+    exercises = ExerciseSerializer(many=True, read_only=True)
+    exercise_ids = serializers.PrimaryKeyRelatedField(
+        queryset=Exercise.objects.all(), source="exercises", write_only=True, many=True
+    )
 
     # Make user field read-only, set automatically on create
     user = UserSerializer(read_only=True)
 
     class Meta:
         model = Workout
-        fields = ["id", "user", "date", "name", "notes", "sets"]
+        fields = ["id", "user", "date", "name", "notes", "sets", "exercises", "exercise_ids"]
         read_only_fields = ["user"]  # User shouldn't be set directly via API payload

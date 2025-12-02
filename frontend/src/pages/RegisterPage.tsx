@@ -3,7 +3,7 @@
 import React, { useState, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import apiClient from '../services/api';
-import { AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
 // Import react-bootstrap components
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';

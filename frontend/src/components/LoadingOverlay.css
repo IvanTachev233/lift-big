@@ -1,0 +1,151 @@
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(2px);
+  transition: opacity 0.3s ease-in-out;
+}
+
+.stick-figure-container {
+  width: 100px;
+  height: 120px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.stick-figure {
+  position: relative;
+  width: 60px;
+  height: 100px;
+  animation: squat 1.5s infinite ease-in-out;
+}
+
+.head {
+  width: 20px;
+  height: 20px;
+  border: 3px solid #333;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  z-index: 2;
+}
+
+.torso {
+  width: 3px;
+  height: 40px;
+  background: #333;
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.legs {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+}
+
+.leg-left,
+.leg-right {
+  width: 3px;
+  height: 40px;
+  background: #333;
+  position: absolute;
+  top: 0;
+  transform-origin: top center;
+}
+
+.leg-left {
+  left: 50%;
+  transform: rotate(15deg) translateX(-50%);
+}
+
+.leg-right {
+  right: 50%;
+  transform: rotate(-15deg) translateX(50%);
+}
+
+.arms {
+  position: absolute;
+  top: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 30px;
+}
+
+.arm-left,
+.arm-right {
+  width: 3px;
+  height: 30px;
+  background: #333;
+  position: absolute;
+  top: 0;
+  transform-origin: top center;
+}
+
+.arm-left {
+  left: 50%;
+  transform: rotate(135deg); /* Arms up holding bar */
+}
+
+.arm-right {
+  right: 50%;
+  transform: rotate(-135deg); /* Arms up holding bar */
+}
+
+.barbell {
+  position: absolute;
+  top: -10px; /* Above head */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 4px;
+  background: #333;
+  z-index: 3;
+}
+
+.weight-left,
+.weight-right {
+  width: 10px;
+  height: 25px;
+  background: #333;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 2px;
+}
+
+.weight-left {
+  left: 0;
+}
+
+.weight-right {
+  right: 0;
+}
+
+@keyframes squat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(20px);
+  }
+}
