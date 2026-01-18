@@ -5,15 +5,14 @@ import React, { useCallback, useEffect, useState } from 'react';
 import apiClient from '../services/api';
 import { Workout } from '../types';
 import Container from 'react-bootstrap/Container';
-import ListGroup from 'react-bootstrap/ListGroup';
+import { ListGroup, PaginationControls } from '../components/design-system';
 import Alert from 'react-bootstrap/Alert';
 
-import { Breadcrumb, Button, Pagination } from 'react-bootstrap';
+import { Breadcrumb, Button } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import ConfirmationModal from '../components/ConfirmationModal';
 import LoadingOverlay from '../components/LoadingOverlay';
-
-const DASHBOARD_WORKOUT_LIMIT = 10;
+import { WORKOUTS_PAGE_SIZE } from '../constants';
 
 interface PaginatedWorkoutsResponse {
   count: number;
@@ -45,13 +44,13 @@ const AllWorkoutsPage = () => {
       const response = await apiClient.get<PaginatedWorkoutsResponse>('/workouts/', {
         params: {
           page: page,
-          page_size: DASHBOARD_WORKOUT_LIMIT,
+          page_size: WORKOUTS_PAGE_SIZE,
         },
       });
 
       setWorkouts(response.data.results);
       setTotalWorkoutCount(response.data.count);
-      setTotalPages(Math.ceil(response.data.count / DASHBOARD_WORKOUT_LIMIT));
+      setTotalPages(Math.ceil(response.data.count / WORKOUTS_PAGE_SIZE));
       setCurrentPage(page);
     } catch (err) {
       console.error('Failed to fetch workouts', err);
@@ -93,93 +92,6 @@ const AllWorkoutsPage = () => {
   useEffect(() => {
     fetchWorkouts(currentPage);
   }, [currentPage, fetchWorkouts]);
-
-  // Handle pagination
-  const handlePageChange = (pageNumber: number) => {
-    if (pageNumber >= 1 && pageNumber <= totalPages && pageNumber != currentPage) {
-      setCurrentPage(pageNumber);
-    }
-  };
-
-  const renderPaginationItems = () => {
-    let items = [];
-    const maxPagesToShow = 5;
-    let startPage = 1;
-    let endPage = 1;
-
-    if (totalPages <= maxPagesToShow) {
-      startPage = 1;
-      endPage = totalPages;
-    } else {
-      const maxPagesBeforeCurrentPage = Math.floor(maxPagesToShow / 2);
-      const maxPagesAfterCurrentPage = Math.ceil(maxPagesToShow / 2) - 1;
-
-      if (currentPage <= maxPagesBeforeCurrentPage) {
-        startPage = 1;
-        endPage = maxPagesToShow;
-      } else if (currentPage + maxPagesAfterCurrentPage >= totalPages) {
-        startPage = totalPages - maxPagesToShow + 1;
-      } else {
-        startPage = currentPage - maxPagesBeforeCurrentPage;
-        endPage = currentPage + maxPagesAfterCurrentPage;
-      }
-    }
-
-    items.push(
-      <Pagination.First
-        key='first'
-        onClick={() => handlePageChange(1)}
-        disabled={currentPage === 1}
-      />
-    );
-    items.push(
-      <Pagination.Prev
-        key='prev'
-        onClick={() => handlePageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-      />
-    );
-
-    // Add Ellipsis if startPage is greater than 1
-    if (startPage > 1) {
-      items.push(<Pagination.Ellipsis key='start-ellipsis' disabled />);
-    }
-
-    for (let number = startPage; number <= endPage; number++) {
-      items.push(
-        <Pagination.Item
-          key={number}
-          active={number === currentPage}
-          onClick={() => handlePageChange(number)}
-        >
-          {number}
-        </Pagination.Item>
-      );
-    }
-
-    // Add Ellipsis if endPage is less than totalPages
-    if (endPage < totalPages) {
-      items.push(<Pagination.Ellipsis key='end-ellipsis' disabled />);
-    }
-
-    // Add Next and Last buttons
-    items.push(
-      <Pagination.Next
-        key='next'
-        onClick={() => handlePageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-      />
-    );
-    items.push(
-      <Pagination.Last
-        key='last'
-        onClick={() => handlePageChange(totalPages)}
-        disabled={currentPage === totalPages}
-      />
-    );
-
-    return items;
-  };
 
   return (
     <Container fluid='lg' className='py-4'>
@@ -225,12 +137,11 @@ const AllWorkoutsPage = () => {
                   ))}
                 </ListGroup>
 
-                {/* Render Pagination if more than one page */}
-                {totalPages > 1 && (
-                  <div className='d-flex justify-content-center'>
-                    <Pagination>{renderPaginationItems()}</Pagination>
-                  </div>
-                )}
+                <PaginationControls
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
                 <p className='text-center text-muted small mt-2'>
                   Showing {workouts.length} of {totalWorkoutCount} workouts
                 </p>

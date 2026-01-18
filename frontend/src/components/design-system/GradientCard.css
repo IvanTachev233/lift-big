@@ -1,0 +1,23 @@
+/* GradientCard Component Styles */
+.card-gradient {
+  position: relative;
+  background: var(--bg-surface, #1e293b);
+  border: none;
+}
+
+.card-gradient::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 0.75rem;
+  padding: 2px;
+  background: linear-gradient(
+    135deg,
+    var(--primary, #6366f1),
+    var(--accent-info, #06b6d4),
+    var(--accent-success, #10b981)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}

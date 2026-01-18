@@ -7,7 +7,7 @@ from django.db.models import Sum, F
 import redis
 import os
 
-r = redis.Redis(host=os.environ.get('REDIS_HOST', 'localhost'), port=6379, db=0)
+r = redis.Redis(host=os.environ.get("REDIS_HOST", "localhost"), port=6379, db=0)
 
 
 class BodyPartChoices(models.TextChoices):
@@ -70,7 +70,9 @@ class Workout(models.Model):
         help_text="The use who performed the workout",
     )
 
-    date = models.DateField(default=timezone.now, help_text="Date for the workout")
+    date = models.DateField(
+        default=timezone.localdate, help_text="Date for the workout"
+    )
 
     name = models.CharField(
         max_length=100,
@@ -82,19 +84,18 @@ class Workout(models.Model):
     notes = models.TextField(
         blank=True, null=True, help_text="Optional notes about the workout session"
     )
-    
+
     total_weight_lifted = models.IntegerField(
-        default=0,
-        help_text="Total weight lifted in the workout"
+        default=0, help_text="Total weight lifted in the workout"
     )
 
     exercises = models.ManyToManyField(
         Exercise,
         blank=True,
         related_name="planned_workouts",
-        help_text="Exercises planned for this workout"
+        help_text="Exercises planned for this workout",
     )
-    
+
     class Meta:
         ordering = ["-date", "-id"]
 
@@ -105,10 +106,13 @@ class Workout(models.Model):
     def update_total_weight(self):
         """Calculates and updates the total weight lifted for this workout."""
         # Calculate sum of (reps * weight) for all sets
-        total = self.sets.aggregate(
-            total_volume=Sum(F('reps') * F('weight'))
-        )['total_volume'] or 0
-        
+        total = (
+            self.sets.aggregate(total_volume=Sum(F("reps") * F("weight")))[
+                "total_volume"
+            ]
+            or 0
+        )
+
         self.total_weight_lifted = int(total)
         self.save()
 
@@ -116,12 +120,16 @@ class Workout(models.Model):
 @receiver(post_save, sender=Workout)
 def update_leaderboard(sender, instance, **kwargs):
     # Calculate total weight lifted across all workouts for this user
-    user_total = Workout.objects.filter(user=instance.user).aggregate(
-        total=Sum('total_weight_lifted')
-    )['total'] or 0
-    
+    user_total = (
+        Workout.objects.filter(user=instance.user).aggregate(
+            total=Sum("total_weight_lifted")
+        )["total"]
+        or 0
+    )
+
     r.zadd("leaderboard", {instance.user.username: user_total})
     r.publish("leaderboard_updates", "update_trigger")
+
 
 # WorkoutSet Model
 class WorkoutSet(models.Model):
@@ -166,7 +174,6 @@ def update_workout_total(sender, instance, **kwargs):
         instance.workout.update_total_weight()
 
 
-
 class FitbitToken(models.Model):
     """Stores Fitbit OAuth tokens for a user."""
 
@@ -192,4 +199,42 @@ class FitbitToken(models.Model):
     @property
     def is_expired(self):
         return timezone.now() >= self.expires_at
-        
+
+
+class UserMetrics(models.Model):
+    """Stores daily health metrics for user readiness calculation."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="metrics",
+    )
+    date = models.DateField(help_text="Date for the metrics")
+
+    # Fitbit metrics
+    resting_heart_rate = models.PositiveIntegerField(
+        null=True, blank=True, help_text="Resting heart rate (bpm)"
+    )
+    hrv = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Heart rate variability (RMSSD ms)",
+    )
+
+    # Timestamps
+    fetched_at = models.DateTimeField(
+        auto_now=True, help_text="When data was last fetched"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "lb_user_metrics"
+        ordering = ["-date"]
+        unique_together = ["user", "date"]
+        verbose_name = "User Metrics"
+        verbose_name_plural = "User Metrics"
+
+    def __str__(self):
+        return f"{self.user.username} metrics on {self.date}"

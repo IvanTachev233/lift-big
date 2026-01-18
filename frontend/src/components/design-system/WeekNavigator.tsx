@@ -1,4 +1,3 @@
-// src/components/WeekNavigator.tsx
 import React from 'react';
 import {
   format,
@@ -18,12 +17,14 @@ interface WeekNavigatorProps {
   selectedDate: Date;
   onDateSelect: (date: Date) => void;
   weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  className?: string;
 }
 
 const WeekNavigator: React.FC<WeekNavigatorProps> = ({
   selectedDate,
   onDateSelect,
   weekStartsOn = 1, // Default to Monday as start of week
+  className = '',
 }) => {
   // State to manage the start date of the currently VISIBLE week
   // Initialize it based on the initially selected date
@@ -70,28 +71,29 @@ const WeekNavigator: React.FC<WeekNavigatorProps> = ({
     format(currentWeekStart, 'MMM d') + ' - ' + format(weekEnd, 'MMM d, yyyy');
 
   return (
-    <div className='week-navigator'>
-      <div className='week-navigator-header'>
-        <button onClick={handlePrevWeek} className='week-nav-button' aria-label='Previous week'>
+    <div className={`ds-week-navigator ${className}`}>
+      <div className='ds-week-navigator-header'>
+        <button onClick={handlePrevWeek} className='ds-week-nav-button' aria-label='Previous week'>
           &lt;
         </button>
-        <span className='week-navigator-title'>{weekHeaderFormat}</span>
-        <div className='week-nav-button-group'>
-          <button onClick={handleToday} className='week-nav-button today-button'>
+        <span className='ds-week-navigator-title'>{weekHeaderFormat}</span>
+        <div className='ds-week-nav-button-group'>
+          <button onClick={handleToday} className='ds-week-nav-button today-button'>
             Today
           </button>
-          <button onClick={handleNextWeek} className='week-nav-button' aria-label='Next week'>
+          <button onClick={handleNextWeek} className='ds-week-nav-button' aria-label='Next week'>
             &gt;
           </button>
         </div>
       </div>
-      <div className='week-navigator-days'>
+      <div className='ds-week-navigator-days'>
         {daysOfWeek.map((day) => {
           const dayClasses = [
-            'week-day',
+            'ds-week-day',
             isSameDay(day, selectedDate) ? 'selected' : '',
             isToday(day) ? 'today' : '',
           ]
+            .filter(Boolean)
             .join(' ')
             .trim();
 
@@ -104,8 +106,8 @@ const WeekNavigator: React.FC<WeekNavigatorProps> = ({
               tabIndex={0}
               onKeyDown={(e) => e.key === 'Enter' && handleDayClick(day)}
             >
-              <span className='day-name'>{format(day, 'EEE')}</span>
-              <span className='day-number'>{format(day, 'd')}</span>
+              <span className='ds-day-name'>{format(day, 'EEE')}</span>
+              <span className='ds-day-number'>{format(day, 'd')}</span>
             </div>
           );
         })}

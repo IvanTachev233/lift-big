@@ -1,7 +1,7 @@
-import { useState } from 'react';
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import AppLayout from './components/AppLayout';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -28,28 +28,30 @@ const PublicRoute = () => {
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Public routes */}
-        <Route element={<AppLayout />}>
-          <Route element={<PublicRoute />}>
-            <Route path='/login' element={<LoginPage />} />
-            <Route path='/register' element={<RegisterPage />} />
-          </Route>
+    <ThemeProvider>
+      <Router>
+        <Routes>
+          {/* Public routes */}
+          <Route element={<AppLayout />}>
+            <Route element={<PublicRoute />}>
+              <Route path='/login' element={<LoginPage />} />
+              <Route path='/register' element={<RegisterPage />} />
+            </Route>
 
-          {/* Protected only for auth users */}
-          <Route element={<ProtectedRoute />}>
-            <Route path='/' element={<DashboardPage />} />
-            <Route path='/exercises' element={<ExercisesPage />} />
-            <Route path='/workouts' element={<AllWorkoutsPage />} />
-            <Route path='/log-workout' element={<LogWorkoutPage />} />
-            <Route path='/workouts/:workoutId' element={<WorkoutDetailPage />} />
+            {/* Protected only for auth users */}
+            <Route element={<ProtectedRoute />}>
+              <Route path='/' element={<DashboardPage />} />
+              <Route path='/exercises' element={<ExercisesPage />} />
+              <Route path='/workouts' element={<AllWorkoutsPage />} />
+              <Route path='/log-workout' element={<LogWorkoutPage />} />
+              <Route path='/workouts/:workoutId' element={<WorkoutDetailPage />} />
+            </Route>
+            {/* If the path doesnt exist navigate to base */}
+            <Route path='*' element={<Navigate to='/' replace />} />
           </Route>
-          {/* If the path doesnt exist navigate to base */}
-          <Route path='*' element={<Navigate to='/' replace />} />
-        </Route>
-      </Routes>
-    </Router>
+        </Routes>
+      </Router>
+    </ThemeProvider>
   );
 }
 

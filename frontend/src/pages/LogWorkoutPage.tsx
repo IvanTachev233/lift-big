@@ -1,7 +1,7 @@
 // src/pages/LogWorkoutPage.tsx
 
 import { useEffect, useState, FormEvent, ChangeEvent, useCallback } from 'react';
-import WeekNavigator from '../components/WeekNavigator';
+import { WeekNavigator } from '../components/design-system';
 import apiClient from '../services/api';
 import { Exercise, WorkoutSet, Workout, PaginatedResponse } from '../types';
 import WorkoutExercisesList from '../components/WorkoutExercisesList';
@@ -11,15 +11,7 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import LoadingOverlay from '../components/LoadingOverlay';
 import Card from 'react-bootstrap/Card';
-
-const formatDateToYYYYMMDD = (date: Date | null): string => {
-  if (!date) return '';
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
+import { formatDateToYYYYMMDD } from '../utils';
 
 const LogWorkoutPage = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -32,8 +24,8 @@ const LogWorkoutPage = () => {
   const [selectedExerciseId, setSelectedExerciseId] = useState<string>('');
 
   const [loadingSet, setLoadingSet] = useState(false);
-  const [setError, setSetError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  type Message = { type: 'success' | 'error'; message: string } | null;
+  const [message, setMessage] = useState<Message>(null);
 
   // Fetch exercises on component mount
   useEffect(() => {
@@ -55,10 +47,7 @@ const LogWorkoutPage = () => {
     setLoadingWorkout(true);
     setWorkoutError(null);
     setCurrentWorkout(null);
-    setSuccessMessage(null);
-    setSetError(null);
-    setSuccessMessage(null);
-    setSetError(null);
+    setMessage(null);
 
     const dateString = formatDateToYYYYMMDD(dateToFind);
     if (!dateString) {
@@ -120,8 +109,7 @@ const LogWorkoutPage = () => {
     if (!currentWorkout) return;
 
     setLoadingSet(true);
-    setSetError(null);
-    setSuccessMessage(null);
+    setMessage(null);
 
     const setData = {
       workout: currentWorkout.id,
@@ -151,11 +139,11 @@ const LogWorkoutPage = () => {
         };
       });
 
-      setSuccessMessage(`Set logged successfully!`);
+      setMessage({ type: 'success', message: 'Set logged successfully!' });
       return response.data;
     } catch (error: any) {
       console.error(error);
-      setSetError('Failed to log set. Please try again.');
+      setMessage({ type: 'error', message: 'Failed to log set. Please try again.' });
       throw error;
     } finally {
       setLoadingSet(false);
@@ -165,11 +153,10 @@ const LogWorkoutPage = () => {
   // Handler for adding an exercise to the view
   const handleAddExercise = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSetError(null);
-    setSuccessMessage(null);
+    setMessage(null);
 
     if (!selectedExerciseId) {
-      setSetError('Please select an exercise.');
+      setMessage({ type: 'error', message: 'Please select an exercise.' });
       return;
     }
 
@@ -177,7 +164,7 @@ const LogWorkoutPage = () => {
     const exerciseToAdd = exercises.find((ex) => ex.id === exerciseIdNum);
 
     if (!exerciseToAdd) {
-      setSetError('Invalid exercise selected.');
+      setMessage({ type: 'error', message: 'Invalid exercise selected.' });
       return;
     }
 
@@ -186,7 +173,7 @@ const LogWorkoutPage = () => {
     const alreadyInPlanned = currentWorkout?.exercises.some((e) => e.id === exerciseIdNum);
 
     if (alreadyInSets || alreadyInPlanned) {
-      setSuccessMessage('Exercise is already in the list below.');
+      setMessage({ type: 'success', message: 'Exercise is already in the list below.' });
     } else {
       // Add to planned exercises via API
       if (currentWorkout) {
@@ -197,11 +184,11 @@ const LogWorkoutPage = () => {
           .patch<Workout>(`/workouts/${currentWorkout.id}/`, { exercise_ids: newExerciseIds })
           .then((response) => {
             setCurrentWorkout(response.data);
-            setSuccessMessage('Exercise added to the list below. Expand it to add sets.');
+            setMessage({ type: 'success', message: 'Exercise added to the list below. Expand it to add sets.' });
           })
           .catch((err) => {
             console.error(err);
-            setSetError('Failed to add exercise to workout.');
+            setMessage({ type: 'error', message: 'Failed to add exercise to workout.' });
           });
       }
     }
@@ -280,8 +267,11 @@ const LogWorkoutPage = () => {
               <Card.Title as='h4' className='text-center mb-3'>
                 Add Exercise
               </Card.Title>
-              {setError && <Alert variant='danger'>{setError}</Alert>}
-              {successMessage && <Alert variant='success'>{successMessage}</Alert>}
+              {message && (
+                <Alert variant={message.type === 'success' ? 'success' : 'danger'}>
+                  {message.message}
+                </Alert>
+              )}
               <Form onSubmit={handleAddExercise}>
                 <Form.Group className='mb-3' controlId='logSetExercise'>
                   <Form.Label>Select Exercise to Add</Form.Label>

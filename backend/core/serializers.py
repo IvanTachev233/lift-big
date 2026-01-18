@@ -75,7 +75,7 @@ class WorkoutSerializer(serializers.ModelSerializer):
     # Display planned exercises
     exercises = ExerciseSerializer(many=True, read_only=True)
     exercise_ids = serializers.PrimaryKeyRelatedField(
-        queryset=Exercise.objects.all(), source="exercises", write_only=True, many=True
+        queryset=Exercise.objects.all(), source="exercises", write_only=True, many=True, required=False, allow_empty=True
     )
 
     # Make user field read-only, set automatically on create

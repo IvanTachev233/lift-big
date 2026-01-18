@@ -6,7 +6,7 @@ import { Workout, WorkoutSet } from '../types';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
-import ListGroup from 'react-bootstrap/ListGroup';
+import { ListGroup } from '../components/design-system';
 import Card from 'react-bootstrap/Card';
 import Breadcrumb from 'react-bootstrap/Breadcrumb';
 import LoadingOverlay from '../components/LoadingOverlay';

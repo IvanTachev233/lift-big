@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Workout, WorkoutSet, Exercise } from '../types';
 import WorkoutExerciseItem from './WorkoutExerciseItem';
-import Accordion from 'react-bootstrap/Accordion';
+import StyledAccordion from './design-system/StyledAccordion';
 import Card from 'react-bootstrap/Card';
 
 interface WorkoutExercisesListProps {
@@ -58,7 +58,7 @@ const WorkoutExercisesList: React.FC<WorkoutExercisesListProps> = ({
   }
 
   return (
-    <Accordion defaultActiveKey={['0']} alwaysOpen>
+    <StyledAccordion defaultActiveKey={['0']} alwaysOpen>
       {exerciseGroups.map((group) => (
         <WorkoutExerciseItem
           key={group.exercise.id}
@@ -68,7 +68,7 @@ const WorkoutExercisesList: React.FC<WorkoutExercisesListProps> = ({
           onUpdateSet={onUpdateSet}
         />
       ))}
-    </Accordion>
+    </StyledAccordion>
   );
 };
 

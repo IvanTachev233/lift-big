@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import Alert from 'react-bootstrap/Alert';
+import Card from 'react-bootstrap/Card';
+import Table from 'react-bootstrap/Table';
+import Badge from 'react-bootstrap/Badge';
 
-import LoadingOverlay from './LoadingOverlay';
+import { LiveBadge } from './design-system';
 
 interface LeaderboardEntry {
   username: string;
@@ -10,12 +13,12 @@ interface LeaderboardEntry {
 
 const Leaderboard: React.FC = () => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Connect to SSE endpoint
-    const eventSource = new EventSource('http://localhost:3000/events');
+    const sseUrl = import.meta.env.VITE_SSE_URL || 'http://localhost:3000/events';
+    const eventSource = new EventSource(sseUrl);
 
     eventSource.onmessage = (event) => {
       try {
@@ -26,7 +29,6 @@ const Leaderboard: React.FC = () => {
         } else {
           console.error('Leaderboard data is not an array:', data);
         }
-        setLoading(false);
       } catch (err) {
         console.error('Failed to parse leaderboard update:', err);
       }
@@ -41,47 +43,36 @@ const Leaderboard: React.FC = () => {
       }
     };
 
-    // Initial fetch fallback (optional, but good for immediate data if SSE takes a moment)
-    // Actually, our SSE handler sends initial data immediately on connection!
-
     return () => {
       eventSource.close();
     };
   }, []);
 
   return (
-    <div className='card shadow-sm' style={{ width: '100%' }}>
-      {/* Header */}
-      <div className='card-header bg-white d-flex justify-content-between align-items-center py-3'>
-        <h6 className='m-0 font-weight-bold text-dark'>Top Athletes</h6>
-        <span className='badge bg-success bg-opacity-10 text-success border border-success'>
-          ● LIVE
+    <Card>
+      <Card.Header className='d-flex justify-content-between align-items-center'>
+        <span>
+          <i className='bi bi-trophy-fill text-warning me-2'></i>Top Athletes
         </span>
-      </div>
+        <LiveBadge />
+      </Card.Header>
 
-      {/* Body */}
-      <div className='card-body p-0'>
-        <LoadingOverlay loading={loading} />
+      <Card.Body className='p-0'>
         {error && (
           <Alert variant='danger' className='m-3'>
             {error}
           </Alert>
         )}
-        {!loading &&
-          !error &&
+        {!error &&
           (leaderboard.length > 0 ? (
-            <table className='table table-hover table-sm mb-0'>
-              <thead className='table-light text-muted'>
+            <Table hover className='align-middle mb-0'>
+              <thead>
                 <tr>
-                  <th scope='col' className='ps-3 border-0'>
+                  <th className='ps-4' style={{ width: '50px' }}>
                     Rank
                   </th>
-                  <th scope='col' className='border-0'>
-                    User
-                  </th>
-                  <th scope='col' className='text-end pe-3 border-0'>
-                    Score
-                  </th>
+                  <th>User</th>
+                  <th className='text-end pe-4'>Score</th>
                 </tr>
               </thead>
               <tbody>
@@ -89,53 +80,40 @@ const Leaderboard: React.FC = () => {
                   const rank = index + 1;
                   return (
                     <tr key={index}>
-                      {/* Rank Column */}
-                      <td className='align-middle ps-3'>
-                        <span
-                          className={`badge rounded-pill ${
+                      <td className='ps-4'>
+                        <Badge
+                          pill
+                          bg={
                             rank === 1
-                              ? 'bg-warning text-dark' // Gold
+                              ? 'warning'
                               : rank === 2
-                                ? 'bg-secondary' // Silver
+                                ? 'secondary'
                                 : rank === 3
-                                  ? 'bg-danger' // Bronze (ish)
-                                  : 'bg-light text-secondary border' // Others
-                          }`}
-                          style={{ width: '25px' }}
+                                  ? 'danger'
+                                  : 'light'
+                          }
+                          text={rank === 1 ? 'dark' : undefined}
+                          className={rank > 3 ? 'border' : ''}
                         >
                           {rank}
-                        </span>
+                        </Badge>
                       </td>
-
-                      {/* Name Column */}
-                      <td
-                        className='align-middle fw-semibold text-dark'
-                        style={{ fontSize: '0.9rem' }}
-                      >
+                      <td className='fw-bold' style={{ color: 'var(--text-main)' }}>
                         {entry.username}
                       </td>
-
-                      {/* Score Column */}
-                      <td className='align-middle text-end pe-3 font-monospace text-primary'>
+                      <td className='text-end pe-4 font-data text-primary'>
                         {entry.total_weight_lifted.toLocaleString()}
                       </td>
                     </tr>
                   );
                 })}
               </tbody>
-            </table>
+            </Table>
           ) : (
-            <p className='text-center mb-0 p-3'>No data available.</p>
+            <p className='text-center text-muted mb-0 p-3'>No data available.</p>
           ))}
-      </div>
-
-      {/* Footer */}
-      <div className='card-footer bg-light text-center border-top-0 py-2'>
-        <a href='#' className='text-decoration-none text-primary' style={{ fontSize: '0.85rem' }}>
-          View Full Rankings &rarr;
-        </a>
-      </div>
-    </div>
+      </Card.Body>
+    </Card>
   );
 };
 

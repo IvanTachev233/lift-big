@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import Container from 'react-bootstrap/Container';
@@ -8,6 +9,7 @@ import Button from 'react-bootstrap/Button';
 
 import './AppNavbar.css';
 import Logo from './Logo';
+import ThemeToggle from './ThemeToggle';
 
 const AppNavbar: React.FC = () => {
   const { isAuthenticated, logout, user } = useAuth();
@@ -53,6 +55,9 @@ const AppNavbar: React.FC = () => {
                   <NavLink to='/log-workout' className={getNavLinkClass}>
                     Log Workout
                   </NavLink>
+                </Nav.Item>
+                <Nav.Item className='ms-md-2 mt-2 mt-md-0'>
+                  <ThemeToggle />
                 </Nav.Item>
                 <Nav.Item className='ms-md-2 mt-2 mt-md-0'>
                   <Button variant='outline-danger' size='sm' onClick={handleLogout}>

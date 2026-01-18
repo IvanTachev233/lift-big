@@ -1,7 +1,7 @@
 import React from 'react';
 // Import React Bootstrap components
 import Card from 'react-bootstrap/Card';
-import ListGroup from 'react-bootstrap/ListGroup';
+import ListGroup from '../components/design-system/ListGroup';
 import Badge from 'react-bootstrap/Badge'; // Use Badge for factor levels
 import './ReadinessScore.css'; // Ensure CSS is imported
 

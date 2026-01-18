@@ -12,7 +12,7 @@ from rest_framework import generics, viewsets, permissions, serializers
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Exercise, Workout, WorkoutSet, FitbitToken
+from .models import Exercise, Workout, WorkoutSet, FitbitToken, UserMetrics
 from .pagination import StandardResultsSetPagination
 from .serializers import (
     RegisterSerializer,
@@ -190,9 +190,24 @@ class FitbitCallbackView(APIView):
 
 class FitbitDataView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    CACHE_DURATION_HOURS = 1
 
     def get(self, request):
-        """Fetch RHR and HRV data from Fitbit."""
+        """Fetch RHR and HRV data from Fitbit, with caching."""
+        today = timezone.localdate()
+
+        # Check for cached data from today
+        metrics = UserMetrics.objects.filter(user=request.user, date=today).first()
+        if metrics:
+            cache_age = timezone.now() - metrics.fetched_at
+            if cache_age < timedelta(hours=self.CACHE_DURATION_HOURS):
+                return Response({
+                    "resting_heart_rate": metrics.resting_heart_rate,
+                    "hrv": float(metrics.hrv) if metrics.hrv else None,
+                    "cached": True
+                })
+
+        # No cache or cache expired - fetch from Fitbit
         try:
             fitbit_token = request.user.fitbit_token
         except FitbitToken.DoesNotExist:
@@ -213,12 +228,10 @@ class FitbitDataView(APIView):
         headers = {"Authorization": f"Bearer {fitbit_token.access_token}"}
 
         # Fetch Resting Heart Rate
-        # https://dev.fitbit.com/build/reference/web-api/heart-rate/get-heart-rate-time-series/
         rhr_url = "https://api.fitbit.com/1/user/-/activities/heart/date/today/1d.json"
         try:
             rhr_response = requests.get(rhr_url, headers=headers, timeout=10)
             rhr_data = rhr_response.json()
-            # Extract RHR. Structure: activities-heart -> [0] -> value -> restingHeartRate
             resting_heart_rate = None
             if "activities-heart" in rhr_data and rhr_data["activities-heart"]:
                 resting_heart_rate = rhr_data["activities-heart"][0].get("value", {}).get("restingHeartRate")
@@ -227,23 +240,31 @@ class FitbitDataView(APIView):
             resting_heart_rate = None
 
         # Fetch HRV
-        # https://dev.fitbit.com/build/reference/web-api/heart-rate-variability/get-hrv-summary-by-date/
         hrv_url = "https://api.fitbit.com/1/user/-/hrv/date/today.json"
         try:
             hrv_response = requests.get(hrv_url, headers=headers, timeout=10)
             hrv_data = hrv_response.json()
-            # Extract HRV. Structure: hrv -> [0] -> value -> dailyRmssd
             hrv_value = None
             if "hrv" in hrv_data and hrv_data["hrv"]:
-                 # Usually returns a list, we take the first one (most recent/today)
                 hrv_value = hrv_data["hrv"][0].get("value", {}).get("dailyRmssd")
         except Exception as e:
             print(f"Error fetching HRV: {e}")
             hrv_value = None
 
+        # Store in database
+        UserMetrics.objects.update_or_create(
+            user=request.user,
+            date=today,
+            defaults={
+                "resting_heart_rate": resting_heart_rate,
+                "hrv": hrv_value,
+            }
+        )
+
         return Response({
             "resting_heart_rate": resting_heart_rate,
-            "hrv": hrv_value
+            "hrv": hrv_value,
+            "cached": False
         })
 
     def refresh_fitbit_token(self, fitbit_token):
@@ -306,13 +327,22 @@ class WorkoutViewSet(viewsets.ModelViewSet):
         the currently authenticated user.
         """
         # Filter workouts to only those owned by the logged-in user
-        queryset = Workout.objects.filter(user=self.request.user)
+        # Use select_related and prefetch_related to avoid N+1 queries
+        queryset = Workout.objects.filter(user=self.request.user).select_related(
+            'user'
+        ).prefetch_related(
+            'exercises',
+            'exercises__owner',
+            'sets',
+            'sets__exercise',
+            'sets__exercise__owner'
+        )
 
         # Filter by current date
         requested_date_str = self.request.query_params.get("date", None)
         if requested_date_str:
             queryset = queryset.filter(date=requested_date_str)
-        
+
         # Prioritize workouts with sets, then by ID (newest first)
         queryset = queryset.annotate(sets_count=Count('sets')).order_by('-sets_count', '-id')
 
@@ -334,7 +364,13 @@ class WorkoutSetViewSet(viewsets.ModelViewSet):
         to the workouts owned by the currently authenticated user.
         """
         # Filter sets based on the owner of the parent workout
-        return WorkoutSet.objects.filter(workout__user=self.request.user)
+        # Use select_related to avoid N+1 queries
+        return WorkoutSet.objects.filter(workout__user=self.request.user).select_related(
+            'workout',
+            'workout__user',
+            'exercise',
+            'exercise__owner'
+        )
 
     def perform_create(self, serializer):
         workout_id = serializer.validated_data.get("workout").id

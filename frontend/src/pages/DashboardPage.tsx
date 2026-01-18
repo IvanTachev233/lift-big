@@ -7,13 +7,13 @@ import { Workout } from '../types';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import ListGroup from 'react-bootstrap/ListGroup';
+// import ListGroup from 'react-bootstrap/ListGroup';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import ReadinessScore from '../components/ReadinessScore';
 import { Link } from 'react-router-dom';
-
-const DASHBOARD_WORKOUT_LIMIT = 5;
+import { ListGroup } from '../components/design-system';
+import { DASHBOARD_WORKOUT_LIMIT } from '../constants';
 
 interface PaginatedWorkoutsResponse {
   count: number;
@@ -33,10 +33,10 @@ interface FitbitData {
 
 import Leaderboard from '../components/Leaderboard';
 import LoadingOverlay from '../components/LoadingOverlay';
+import { StatCard } from '../components/design-system';
 
 const DashboardPage = () => {
   const { user } = useAuth();
-  console.log(user);
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [totalWorkoutCount, setTotalWorkoutCount] = useState<number>(0);
   const [loading, setLoadingWorkouts] = useState(true);
@@ -125,31 +125,33 @@ const DashboardPage = () => {
         <Col md={5} lg={4}>
           <ReadinessScore />
           {/* Fitbit Data Widget */}
-          {user?.has_fitbit && (
-            <div className='mt-4 p-3 border rounded shadow-sm bg-white'>
-              <h5 className='mb-3'>Fitbit Health Metrics</h5>
-              {fitbitData ? (
-                <ListGroup variant='flush'>
-                  <ListGroup.Item className='d-flex justify-content-between align-items-center'>
-                    <span>Resting Heart Rate</span>
-                    <span className='fw-bold'>
-                      {fitbitData.resting_heart_rate
-                        ? `${fitbitData.resting_heart_rate} bpm`
-                        : 'N/A'}
-                    </span>
-                  </ListGroup.Item>
-                  <ListGroup.Item className='d-flex justify-content-between align-items-center'>
-                    <span>HRV (RMSSD)</span>
-                    <span className='fw-bold'>
-                      {fitbitData.hrv ? `${fitbitData.hrv} ms` : 'N/A'}
-                    </span>
-                  </ListGroup.Item>
-                </ListGroup>
-              ) : (
-                <div className='text-center text-muted'>Loading Fitbit data...</div>
-              )}
+          {user?.has_fitbit && fitbitData && (
+            <div className='mt-4'>
+              <StatCard
+                title='Fitbit Health Metrics'
+                stats={[
+                  {
+                    value: fitbitData.resting_heart_rate
+                      ? `${fitbitData.resting_heart_rate}`
+                      : 'N/A',
+                    label: 'Resting Heart Rate (bpm)',
+                  },
+                  {
+                    value: fitbitData.hrv ? `${fitbitData.hrv}` : 'N/A',
+                    label: 'HRV (RMSSD ms)',
+                  },
+                ]}
+              />
             </div>
-          )}{' '}
+          )}
+          {user?.has_fitbit && !fitbitData && (
+            <div className='mt-4'>
+              <StatCard
+                title='Fitbit Health Metrics'
+                stats={[{ value: '...', label: 'Loading data' }]}
+              />
+            </div>
+          )}
           <div className='mt-4'>
             <Leaderboard />
           </div>
@@ -181,7 +183,7 @@ const DashboardPage = () => {
                       <div className='fw-bold'>{workout.name || `Workout Session`}</div>
                       <span className='text-muted small'>Date: {workout.date}</span>
                     </div>
-                    <Button className='btn-primary' href={`/workouts/${workout.id}`}>
+                    <Button variant='outline-secondary' size='sm' href={`/workouts/${workout.id}`}>
                       View
                     </Button>
                   </ListGroup.Item>

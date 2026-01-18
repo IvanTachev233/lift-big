@@ -9,7 +9,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import Spinner from 'react-bootstrap/Spinner';
-import ListGroup from 'react-bootstrap/ListGroup';
+import { ListGroup } from '../components/design-system';
 import Card from 'react-bootstrap/Card'; // Use Card for form section
 import LoadingOverlay from '../components/LoadingOverlay';
 
