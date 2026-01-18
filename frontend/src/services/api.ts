@@ -64,7 +64,7 @@ apiClient.interceptors.response.use(
         });
 
         const newAccessToken = refreshResponse.data.access;
-        localStorage.setItem('accesstoken', newAccessToken);
+        localStorage.setItem('accessToken', newAccessToken);
 
         // Update the Authorization header for the original request and default for future ones
         apiClient.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;

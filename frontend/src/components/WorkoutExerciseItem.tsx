@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Exercise, WorkoutSet } from '../types';
-import ListGroup from 'react-bootstrap/ListGroup';
+import StyledListGroup from './design-system/StyledListGroup';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Accordion from 'react-bootstrap/Accordion';
+import StyledAccordion from './design-system/StyledAccordion';
 
 interface WorkoutExerciseItemProps {
   exercise: Exercise;
@@ -64,17 +64,17 @@ const WorkoutExerciseItem: React.FC<WorkoutExerciseItemProps> = ({
   };
 
   return (
-    <Accordion.Item eventKey={exercise.id.toString()}>
-      <Accordion.Header>
+    <StyledAccordion.Item eventKey={exercise.id.toString()}>
+      <StyledAccordion.Header>
         <div className='d-flex justify-content-between w-100 me-3'>
           <strong>{exercise.name}</strong>
           <span className='text-muted small'>{sets.length} sets</span>
         </div>
-      </Accordion.Header>
-      <Accordion.Body>
-        <ListGroup variant='flush' className='mb-3'>
+      </StyledAccordion.Header>
+      <StyledAccordion.Body>
+        <StyledListGroup variant='flush' className='mb-3'>
           {sets.map((set, index) => (
-            <ListGroup.Item key={set.id} className='d-flex align-items-center'>
+            <StyledListGroup.Item key={set.id} className='d-flex align-items-center'>
               <span className='me-3' style={{ minWidth: '50px' }}>
                 Set {index + 1}
               </span>
@@ -126,9 +126,9 @@ const WorkoutExerciseItem: React.FC<WorkoutExerciseItemProps> = ({
                   />
                 </Col>
               </Row>
-            </ListGroup.Item>
+            </StyledListGroup.Item>
           ))}
-        </ListGroup>
+        </StyledListGroup>
 
         <Form onSubmit={handleAddSet}>
           <Row className='g-2 align-items-end'>
@@ -160,20 +160,14 @@ const WorkoutExerciseItem: React.FC<WorkoutExerciseItemProps> = ({
               </Form.Group>
             </Col>
             <Col xs={4}>
-              <Button
-                type='submit'
-                variant='outline-primary'
-                size='sm'
-                className='w-100'
-                disabled={adding}
-              >
+              <Button type='submit' variant='primary' size='sm' className='w-100' disabled={adding}>
                 {adding ? '...' : 'Add'}
               </Button>
             </Col>
           </Row>
         </Form>
-      </Accordion.Body>
-    </Accordion.Item>
+      </StyledAccordion.Body>
+    </StyledAccordion.Item>
   );
 };
 

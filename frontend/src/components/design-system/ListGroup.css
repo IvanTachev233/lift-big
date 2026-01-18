@@ -1,0 +1,48 @@
+.ds-list-group {
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-surface);
+}
+
+.ds-list-group-item {
+  position: relative;
+  display: block;
+  padding: 1rem 1.25rem;
+  color: var(--text-main);
+  text-decoration: none;
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s ease;
+}
+
+.ds-list-group-item:last-child {
+  border-bottom: none;
+}
+
+.ds-list-group-item:hover {
+  background-color: var(--bg-surface-hover);
+  z-index: 1;
+}
+
+.ds-list-group-item.active {
+  z-index: 2;
+  color: #fff;
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.ds-list-group-flush {
+  border-radius: 0;
+  border-width: 0 0 1px;
+}
+
+.ds-list-group-flush .ds-list-group-item {
+  border-right-width: 0;
+  border-left-width: 0;
+  border-radius: 0;
+}
+
+.ds-list-group-flush:last-child {
+  border-bottom-width: 0;
+}

@@ -1,24 +1,24 @@
-/* src/components/ReadinessScore.css */
+/* src/components/ReadinessScore.css - Midnight Momentum Design System */
 
 .readiness-card {
-  background-color: #2c3e50 !important;
-  color: #ecf0f1 !important;
-  border: none !important;
-  border-radius: 12px !important;
-  border-left: 5px solid #7f8c8d !important;
+  background-color: var(--bg-surface) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 0.75rem !important;
+  border-left: 4px solid var(--border-color) !important;
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
 }
 
 .readiness-card.level-high {
-  border-left-color: #8a9a5b !important;
+  border-left-color: var(--accent-success) !important;
 }
 .readiness-card.level-moderate {
-  border-left-color: #f1c40f !important;
+  border-left-color: var(--accent-warning) !important;
 }
 .readiness-card.level-low {
-  border-left-color: #e74c3c !important;
+  border-left-color: var(--accent-danger) !important;
 }
 
 .readiness-card .card-body {
@@ -27,50 +27,52 @@
 
 .readiness-card.readiness-loading {
   font-style: italic;
-  color: #bdc3c7;
-  background-color: #34495e !important;
-  border-left-color: #7f8c8d !important;
+  color: var(--text-muted);
+  background-color: var(--bg-surface-hover) !important;
+  border-left-color: var(--border-color) !important;
 }
 
 .readiness-score-circle {
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: rgba(99, 102, 241, 0.1);
   display: flex;
   justify-content: center;
   align-items: center;
+  border: 3px solid;
 }
 
 .readiness-card.level-high .readiness-score-circle {
-  border-color: #8a9a5b !important;
+  border-color: var(--accent-success) !important;
 }
 .readiness-card.level-moderate .readiness-score-circle {
-  border-color: #f1c40f !important;
+  border-color: var(--accent-warning) !important;
 }
 .readiness-card.level-low .readiness-score-circle {
-  border-color: #e74c3c !important;
+  border-color: var(--accent-danger) !important;
 }
 .readiness-card.level-unknown .readiness-score-circle {
-  border-color: #7f8c8d !important;
+  border-color: var(--border-color) !important;
 }
 
 .readiness-score-number {
+  font-family: var(--font-data);
   font-size: 2.5em;
   font-weight: bold;
-  color: #ffffff;
+  color: var(--text-main);
   line-height: 1;
 }
 
 .readiness-level {
   font-size: 1.3em;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-main);
 }
 
 .readiness-message {
   font-size: 0.95em;
-  color: #ecf0f1;
+  color: var(--text-muted);
   max-width: 350px;
   margin-left: auto;
   margin-right: auto;
@@ -78,7 +80,7 @@
 
 .readiness-factors {
   text-align: left;
-  border-top: 1px solid #34495e;
+  border-top: 1px solid var(--border-color);
   padding-top: 20px;
   margin-top: 20px;
 }
@@ -86,19 +88,20 @@
 .readiness-factors-title {
   margin-top: 0;
   margin-bottom: 15px;
-  font-size: 1em;
-  color: #bdc3c7;
+  font-size: 0.875rem;
+  color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.05em;
+  font-weight: 600;
 }
 
 .factors-list .list-group-item {
   background-color: transparent !important;
   border: none !important;
-  border-bottom: 1px solid #34495e !important;
+  border-bottom: 1px solid var(--border-color) !important;
   padding-left: 0 !important;
   padding-right: 0 !important;
-  color: #ecf0f1 !important;
+  color: var(--text-main) !important;
   font-size: 0.9em;
 }
 .factors-list .list-group-item:last-child {
@@ -106,25 +109,26 @@
 }
 
 .factor-badge {
-  font-weight: bold;
+  font-weight: 500;
   font-size: 0.85em;
-  padding: 4px 8px !important;
+  padding: 0.35em 0.75em !important;
   white-space: nowrap;
+  border-radius: 0.375rem;
 }
 
 .factor-badge.level-high {
-  background-color: #8a9a5b !important;
-  color: #ffffff !important;
+  background-color: var(--accent-success) !important;
+  color: var(--text-main) !important;
 }
 .factor-badge.level-moderate {
-  background-color: #f1c40f !important;
-  color: #333333 !important;
+  background-color: var(--accent-warning) !important;
+  color: var(--bg-deep) !important;
 }
 .factor-badge.level-low {
-  background-color: #e74c3c !important;
-  color: #ffffff !important;
+  background-color: var(--accent-danger) !important;
+  color: var(--text-main) !important;
 }
 .factor-badge.level-unknown {
-  background-color: #7f8c8d !important;
-  color: #ffffff !important;
+  background-color: var(--border-color) !important;
+  color: var(--text-main) !important;
 }
