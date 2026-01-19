@@ -96,6 +96,10 @@ class Workout(models.Model):
         help_text="Exercises planned for this workout",
     )
 
+    is_template = models.BooleanField(
+        default=False, help_text="Identifies if this is a reusable workout template"
+    )
+
     class Meta:
         ordering = ["-date", "-id"]
 
@@ -133,6 +137,11 @@ def update_leaderboard(sender, instance, **kwargs):
 
 # WorkoutSet Model
 class WorkoutSet(models.Model):
+    class WeightMode(models.TextChoices):
+        EXACT = "EX", "Exact Weight"
+        PERCENTAGE = "PC", "Percentage of 1RM"
+        RPE = "RP", "Rate of Perceived Exertion"
+
     workout = models.ForeignKey(
         Workout,
         on_delete=models.CASCADE,
@@ -150,6 +159,19 @@ class WorkoutSet(models.Model):
         max_digits=6,
         decimal_places=2,
         help_text="Weight used for the set (e.g., in kg or lbs)",
+    )
+    weight_mode = models.CharField(
+        max_length=2,
+        choices=WeightMode.choices,
+        default=WeightMode.EXACT,
+        help_text="Mode for interpreting the weight/expected_weight",
+    )
+    expected_weight = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Target weight/value (e.g. 80.0 for 80%, 8.0 for RPE 8, or exact kg)",
     )
     notes = models.TextField(
         blank=True, null=True, help_text="Optional notes specific to this set"

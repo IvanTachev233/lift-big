@@ -1,8 +1,7 @@
 import React, { useMemo } from 'react';
+import { Box, Typography } from '@mui/material';
 import { Workout, WorkoutSet, Exercise } from '../types';
-import WorkoutExerciseItem from './WorkoutExerciseItem';
-import StyledAccordion from './design-system/StyledAccordion';
-import Card from 'react-bootstrap/Card';
+import ExerciseCard from './ExerciseCard';
 
 interface WorkoutExercisesListProps {
   workout: Workout;
@@ -51,24 +50,33 @@ const WorkoutExercisesList: React.FC<WorkoutExercisesListProps> = ({
 
   if (exerciseGroups.length === 0) {
     return (
-      <Card className='text-center p-4 text-muted'>
-        No exercises logged yet. Start by adding an exercise above!
-      </Card>
+      <Box
+        sx={{
+          textAlign: 'center',
+          p: 4,
+          color: 'text.secondary',
+          bgcolor: 'background.paper',
+          borderRadius: 1,
+        }}
+      >
+        <Typography>No exercises logged yet. Start by adding an exercise above!</Typography>
+      </Box>
     );
   }
 
   return (
-    <StyledAccordion defaultActiveKey={['0']} alwaysOpen>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       {exerciseGroups.map((group) => (
-        <WorkoutExerciseItem
+        <ExerciseCard
           key={group.exercise.id}
+          mode='logging'
           exercise={group.exercise}
           sets={group.sets}
           onAddSet={(reps, weight) => onAddSet(group.exercise.id, reps, weight)}
           onUpdateSet={onUpdateSet}
         />
       ))}
-    </StyledAccordion>
+    </Box>
   );
 };
 

@@ -8,9 +8,10 @@ from django.contrib.auth.models import User
 from django.core import signing
 from django.http import HttpResponseRedirect
 from django.utils import timezone
-from rest_framework import generics, viewsets, permissions, serializers
-from rest_framework.response import Response
+from rest_framework import generics, viewsets, permissions, serializers, filters
 from rest_framework.views import APIView
+from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import Exercise, Workout, WorkoutSet, FitbitToken, UserMetrics
 from .pagination import StandardResultsSetPagination
@@ -300,6 +301,8 @@ class FitbitDataView(APIView):
 class ExerciseViewSet(viewsets.ModelViewSet):
     serializer_class = ExerciseSerializer
     permission_classes = [permissions.IsAuthenticated]  # Must be logged in
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
 
     def get_queryset(self):
         """This view should return a list of all exercises for
@@ -327,8 +330,9 @@ class WorkoutViewSet(viewsets.ModelViewSet):
         the currently authenticated user.
         """
         # Filter workouts to only those owned by the logged-in user
+        # Exclude templates (is_template=False)
         # Use select_related and prefetch_related to avoid N+1 queries
-        queryset = Workout.objects.filter(user=self.request.user).select_related(
+        queryset = Workout.objects.filter(user=self.request.user, is_template=False).select_related(
             'user'
         ).prefetch_related(
             'exercises',
@@ -353,11 +357,40 @@ class WorkoutViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
 
+class SavedWorkoutViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for Saved Workouts (Templates).
+    Returns workouts marked as is_template=True for the current user.
+    """
+    serializer_class = WorkoutSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
+
+    def get_queryset(self):
+        return Workout.objects.filter(user=self.request.user, is_template=True).select_related(
+            'user'
+        ).prefetch_related(
+            'exercises',
+            'exercises__owner',
+            'sets',
+            'sets__exercise',
+            'sets__exercise__owner'
+        ).order_by('-id')
+
+    def perform_create(self, serializer):
+        """Ensure the workout is saved as a template and assigned to the user."""
+        serializer.save(user=self.request.user, is_template=True)
+
+
 # WorkoutSet ViewSet
 # Allows authenticated users to manage sets within their workouts
 class WorkoutSetViewSet(viewsets.ModelViewSet):
     serializer_class = WorkoutSetSerializer
+    serializer_class = WorkoutSetSerializer
     permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['exercise']
+    ordering_fields = ['id', 'workout__date']
 
     def get_queryset(self):
         """This view should return a list of all workout sets belonging
