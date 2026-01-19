@@ -14,6 +14,7 @@ import WorkoutDetailPage from './pages/WorkoutDetailPage';
 import './App.css';
 import AllWorkoutsPage from './pages/AllWorkoutsPage';
 import CreateWorkoutTemplatePage from './pages/CreateWorkoutTemplatePage';
+import EditWorkoutTemplatePage from './pages/EditWorkoutTemplatePage';
 
 // Component to protect routes
 const ProtectedRoute = () => {
@@ -51,6 +52,7 @@ function App() {
               <Route path='/log-workout' element={<LogWorkoutPage />} />
               <Route path='/workouts/:workoutId' element={<WorkoutDetailPage />} />
               <Route path='/library/create' element={<CreateWorkoutTemplatePage />} />
+              <Route path='/workouts/edit/:templateId' element={<EditWorkoutTemplatePage />} />
             </Route>
             {/* If the path doesnt exist navigate to base */}
             <Route path='*' element={<Navigate to='/' replace />} />
