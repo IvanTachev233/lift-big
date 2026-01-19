@@ -4,7 +4,7 @@ import Navbar from './AppNavbar';
 
 const AppLayout: React.FC = () => {
   return (
-    <div>
+    <div className='d-flex flex-column h-100'>
       <Navbar />
       <main className='main-content'>
         <Outlet />

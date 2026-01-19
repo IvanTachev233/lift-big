@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import ExercisesPage from './pages/ExercisesPage';
+import LibraryPage from './pages/LibraryPage';
 import LogWorkoutPage from './pages/LogWorkoutPage';
 import WorkoutDetailPage from './pages/WorkoutDetailPage';
 import './App.css';
@@ -43,6 +44,7 @@ function App() {
               <Route path='/' element={<DashboardPage />} />
               <Route path='/exercises' element={<ExercisesPage />} />
               <Route path='/workouts' element={<AllWorkoutsPage />} />
+              <Route path='/library' element={<LibraryPage />} />
               <Route path='/log-workout' element={<LogWorkoutPage />} />
               <Route path='/workouts/:workoutId' element={<WorkoutDetailPage />} />
             </Route>

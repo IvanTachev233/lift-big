@@ -52,6 +52,11 @@ const AppNavbar: React.FC = () => {
                   </NavLink>
                 </Nav.Item>
                 <Nav.Item>
+                  <NavLink to='/library' className={getNavLinkClass}>
+                    Library
+                  </NavLink>
+                </Nav.Item>
+                <Nav.Item>
                   <NavLink to='/log-workout' className={getNavLinkClass}>
                     Log Workout
                   </NavLink>
