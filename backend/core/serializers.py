@@ -65,7 +65,7 @@ class WorkoutSetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WorkoutSet
-        fields = ["id", "workout", "exercise", "exercise_id", "reps", "weight", "notes"]
+        fields = ["id", "workout", "exercise", "exercise_id", "reps", "weight", "weight_mode", "expected_weight", "notes"]
 
 
 class WorkoutSerializer(serializers.ModelSerializer):
@@ -83,5 +83,5 @@ class WorkoutSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Workout
-        fields = ["id", "user", "date", "name", "notes", "sets", "exercises", "exercise_ids"]
+        fields = ["id", "user", "date", "name", "notes", "sets", "exercises", "exercise_ids", "is_template"]
         read_only_fields = ["user"]  # User shouldn't be set directly via API payload

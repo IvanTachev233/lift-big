@@ -1,0 +1,23 @@
+.carousel-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 1rem;
+  padding: 1rem 0.5rem; /* Add vertical padding for shadows/hover effects */
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+
+.carousel-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.carousel-item-wrapper {
+  flex: 0 0 auto;
+  width: 300px; /* Default width, can be overridden */
+  scroll-snap-align: start;
+}
+
+/* Optional: faint fade on edges to indicate more content? 
+   Implementation depends on complexity desired. keeping simple for now. */

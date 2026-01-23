@@ -6,3 +6,4 @@ export { default as LiveBadge } from './LiveBadge';
 export { default as ListGroup } from './ListGroup';
 export { default as WeekNavigator } from './WeekNavigator';
 export { default as PaginationControls } from './PaginationControls';
+export { default as Carousel, CarouselItem } from './Carousel';

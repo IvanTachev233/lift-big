@@ -40,6 +40,8 @@ export interface WorkoutSet {
   // exercise_id: number;
   reps: number;
   weight: string;
+  weight_mode?: 'EX' | 'PC' | 'RP';
+  expected_weight?: string | null;
   notes: string | null;
 }
 
@@ -52,6 +54,7 @@ export interface Workout {
   notes: string | null;
   sets: WorkoutSet[];
   exercises: Exercise[];
+  is_template?: boolean;
 }
 
 export interface PaginatedResponse<T> {
