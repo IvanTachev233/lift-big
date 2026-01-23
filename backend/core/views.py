@@ -189,6 +189,23 @@ class FitbitCallbackView(APIView):
         return Response({"detail": "Fitbit account connected successfully."})
 
 
+
+class FitbitDisconnectView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        """Disconnect the Fitbit account by deleting the token."""
+        try:
+            token = FitbitToken.objects.get(user=request.user)
+            token.delete()
+            return Response({"detail": "Fitbit account disconnected successfully."})
+        except FitbitToken.DoesNotExist:
+            return Response(
+                {"detail": "Fitbit account not connected."},
+                status=404,
+            )
+
+
 class FitbitDataView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     CACHE_DURATION_HOURS = 1

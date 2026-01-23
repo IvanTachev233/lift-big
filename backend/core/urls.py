@@ -17,6 +17,7 @@ urlpatterns = [
     path("register/", views.RegisterView.as_view(), name="register"),
     path("fitbit/connect/", views.FitbitConnectView.as_view(), name="fitbit-connect"),
     path("fitbit/callback/", views.FitbitCallbackView.as_view(), name="fitbit-callback"),
+    path("fitbit/disconnect/", views.FitbitDisconnectView.as_view(), name="fitbit-disconnect"),
     path("fitbit/data/", views.FitbitDataView.as_view(), name="fitbit-data"),
     path("", include(router.urls)),
 ]

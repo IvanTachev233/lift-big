@@ -100,6 +100,20 @@ const DashboardPage = () => {
     }
   };
 
+  const handleFitbitDisconnect = async () => {
+    setConnectingFitbit(true);
+    setFitbitError(null);
+    try {
+      await apiClient.post('/fitbit/disconnect/');
+      // Refresh the page to update state (simplest approach for now)
+      window.location.reload();
+    } catch (err: any) {
+      console.error('Failed to disconnect Fitbit:', err);
+      setFitbitError('Failed to disconnect Fitbit.');
+      setConnectingFitbit(false);
+    }
+  };
+
   return (
     <Container fluid='lg' className='py-4'>
       {' '}
@@ -107,15 +121,15 @@ const DashboardPage = () => {
       {user && (
         <div className='text-center mb-4'>
           <p className='fs-5 mb-3'>Welcome, {user.username}!</p>
-          {!user.has_fitbit && (
+          {!user.has_fitbit ? (
             <Button variant='success' onClick={handleFitbitConnect} disabled={connectingFitbit}>
               {connectingFitbit ? 'Connecting to Fitbit...' : 'Connect Fitbit'}
             </Button>
+          ) : (
+            <Button variant='danger' onClick={handleFitbitDisconnect} disabled={connectingFitbit}>
+              {connectingFitbit ? 'Removing Fitbit Connection...' : 'Disconnect Fitbit'}
+            </Button>
           )}
-
-          <Button variant='danger'>
-            {connectingFitbit ? 'Removing Fitbit Connection...' : 'Disconnect Fitbit'}
-          </Button>
           {fitbitError && <div className='text-danger small mt-2'>{fitbitError}</div>}
         </div>
       )}
